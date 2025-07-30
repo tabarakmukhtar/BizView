@@ -12,9 +12,11 @@ import { Upload } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+type UserRole = 'Manager' | 'Admin' | 'Accountant' | 'Guest';
 
-const profileDetails: Record<string, { email: string, title: string }> = {
+const profileDetails: Record<UserRole, { email: string, title: string }> = {
   Manager: {
     email: 'manager@bizview.com',
     title: 'Senior Business Manager',
@@ -34,53 +36,58 @@ const profileDetails: Record<string, { email: string, title: string }> = {
 }
 
 export default function ProfilePage() {
-  const { name: initialUserName, role } = useUser();
-  const [name, setName] = useState(initialUserName);
+  const { role: currentUserRole } = useUser();
+  const [selectedRole, setSelectedRole] = useState<UserRole>(currentUserRole);
+  
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [title, setTitle] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/100x100');
   const [isClient, setIsClient] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    if (currentUserRole && currentUserRole !== 'Guest') {
+      setSelectedRole(currentUserRole);
+    }
+  }, [currentUserRole]);
   
-  const canEdit = isClient && role === 'Admin';
+  const isAdmin = isClient && currentUserRole === 'Admin';
 
   useEffect(() => {
-    if (role && role !== 'Guest' && isClient) {
-      const savedAvatar = localStorage.getItem(`user-avatar-${role}`);
-      if (savedAvatar) {
-        setAvatarPreview(savedAvatar);
-      } else {
-        setAvatarPreview('https://placehold.co/100x100');
-      }
-
-      const savedName = localStorage.getItem(`user-name-${role}`);
-      setName(savedName || initialUserName);
+    if (selectedRole && selectedRole !== 'Guest' && isClient) {
+      const savedAvatar = localStorage.getItem(`user-avatar-${selectedRole}`);
+      const savedName = localStorage.getItem(`user-name-${selectedRole}`);
+      const savedEmail = localStorage.getItem(`user-email-${selectedRole}`);
+      const savedTitle = localStorage.getItem(`user-title-${selectedRole}`);
       
-      const savedEmail = localStorage.getItem(`user-email-${role}`);
-      setEmail(savedEmail || profileDetails[role]?.email || '');
+      const defaultName = profileDetails[selectedRole] ? `The ${selectedRole}` : 'User';
 
-      const savedTitle = localStorage.getItem(`user-title-${role}`);
-      setTitle(savedTitle || profileDetails[role]?.title || '');
-
+      setAvatarPreview(savedAvatar || 'https://placehold.co/100x100');
+      setName(savedName || defaultName);
+      setEmail(savedEmail || profileDetails[selectedRole]?.email || '');
+      setTitle(savedTitle || profileDetails[selectedRole]?.title || '');
     }
-  }, [role, isClient, initialUserName]);
+  }, [selectedRole, isClient]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveChanges = () => {
-    if (role && role !== 'Guest') {
-      localStorage.setItem(`user-avatar-${role}`, avatarPreview);
-      localStorage.setItem(`user-name-${role}`, name);
-      localStorage.setItem(`user-email-${role}`, email);
-      localStorage.setItem(`user-title-${role}`, title);
-      window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-avatar-${role}` }}));
-      window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-name-${role}` }}));
+    if (selectedRole && selectedRole !== 'Guest') {
+      localStorage.setItem(`user-avatar-${selectedRole}`, avatarPreview);
+      localStorage.setItem(`user-name-${selectedRole}`, name);
+      localStorage.setItem(`user-email-${selectedRole}`, email);
+      localStorage.setItem(`user-title-${selectedRole}`, title);
+      
+      // If the admin edits their own profile, trigger a real-time update in the header
+      if (selectedRole === currentUserRole) {
+        window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-avatar-${currentUserRole}` }}));
+        window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-name-${currentUserRole}` }}));
+      }
+
       toast({
         title: 'Profile Updated',
-        description: 'Your changes have been saved successfully.',
+        description: `Changes for ${selectedRole} have been saved successfully.`,
       });
     }
   };
@@ -156,7 +163,7 @@ export default function ProfilePage() {
           <CardHeader className="items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
               <AvatarImage src={avatarPreview} alt={name} data-ai-hint="person" />
-              <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{name ? name.charAt(0) : 'U'}</AvatarFallback>
             </Avatar>
             <CardTitle>{name}</CardTitle>
             <CardDescription>{email}</CardDescription>
@@ -171,21 +178,36 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
             <CardDescription>
-                {canEdit ? "Update your personal information here." : "Only Admins can change profile information."}
+                {isAdmin ? "Select a user to update their information." : "Your profile is managed by an administrator."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {isAdmin && (
+              <div className="space-y-2">
+                <Label htmlFor="role-select">Select User to Edit</Label>
+                 <Select onValueChange={(value) => setSelectedRole(value as UserRole)} value={selectedRole}>
+                    <SelectTrigger id="role-select">
+                      <SelectValue placeholder="Select a role to edit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Manager">Manager</SelectItem>
+                      <SelectItem value="Accountant">Accountant</SelectItem>
+                    </SelectContent>
+                  </Select>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} disabled={!canEdit} />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} disabled={!isAdmin} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={!canEdit}/>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={!isAdmin}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">Job Title</Label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={!canEdit}/>
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={!isAdmin}/>
             </div>
             <div className="space-y-2">
                <Label>Profile Picture</Label>
@@ -197,19 +219,19 @@ export default function ProfilePage() {
                         onChange={handleImageChange}
                         className="hidden"
                         accept="image/*"
-                        disabled={!canEdit}
+                        disabled={!isAdmin}
                     />
                      <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className='inline-block'>
-                            <Button variant="outline" onClick={handleUploadClick} disabled={!canEdit}>
+                            <Button variant="outline" onClick={handleUploadClick} disabled={!isAdmin}>
                                 <Upload className="mr-2 h-4 w-4" />
                                 Upload Picture
                             </Button>
                           </div>
                         </TooltipTrigger>
-                         {!canEdit && (
+                         {!isAdmin && (
                           <TooltipContent>
                             <p>Only Admins can change profile pictures.</p>
                           </TooltipContent>
@@ -223,10 +245,10 @@ export default function ProfilePage() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="inline-block">
-                    <Button onClick={handleSaveChanges} disabled={!canEdit}>Save Changes</Button>
+                    <Button onClick={handleSaveChanges} disabled={!isAdmin}>Save Changes</Button>
                   </div>
                 </TooltipTrigger>
-                 {!canEdit && (
+                 {!isAdmin && (
                   <TooltipContent>
                     <p>Only Admins can save changes.</p>
                   </TooltipContent>
