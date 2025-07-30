@@ -37,7 +37,7 @@ const profileDetails: Record<UserRole, { email: string, title: string }> = {
 
 export default function ProfilePage() {
   const { role: currentUserRole } = useUser();
-  const [selectedRole, setSelectedRole] = useState<UserRole>(currentUserRole);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('Guest');
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -48,6 +48,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setIsClient(true);
+    // Set the initial role to the current user's role once the component mounts
     if (currentUserRole && currentUserRole !== 'Guest') {
       setSelectedRole(currentUserRole);
     }
@@ -55,6 +56,7 @@ export default function ProfilePage() {
   
   const isAdmin = isClient && currentUserRole === 'Admin';
 
+  // This effect runs when `selectedRole` changes, loading the correct user data.
   useEffect(() => {
     if (selectedRole && selectedRole !== 'Guest' && isClient) {
       const savedAvatar = localStorage.getItem(`user-avatar-${selectedRole}`);
