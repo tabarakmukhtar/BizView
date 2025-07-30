@@ -135,7 +135,9 @@ export default function CalendarPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Appointment Calendar</h1>
-          <p className="text-muted-foreground">Manage your schedule and appointments. Only Admins can add or modify appointments.</p>
+          <p className="text-muted-foreground">
+            {canEdit ? 'Manage your schedule and appointments.' : 'View your schedule. Contact an Admin to make changes.'}
+          </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <TooltipProvider>
@@ -217,23 +219,34 @@ export default function CalendarPage() {
                         <p className="font-semibold">{apt.title}</p>
                         <p className="text-sm text-muted-foreground">{apt.description}</p>
                       </div>
-                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="flex-shrink-0" disabled={!canEdit}>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditAppointment(apt)} disabled={!canEdit}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteAppointment(apt.id)} className="text-destructive focus:text-destructive" disabled={!canEdit}>
-                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="flex-shrink-0" disabled={!canEdit}>
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditAppointment(apt)} disabled={!canEdit}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDeleteAppointment(apt.id)} className="text-destructive focus:text-destructive" disabled={!canEdit}>
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TooltipTrigger>
+                          {!canEdit && (
+                            <TooltipContent>
+                              <p>Only Admins can perform actions.</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   ))}
                 </div>

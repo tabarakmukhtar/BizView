@@ -32,6 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUser } from '@/hooks/use-user';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -239,40 +240,66 @@ export default function SettingsPage() {
                     <p className="text-sm font-medium text-destructive">Delete Account</p>
                     <p className="text-sm text-muted-foreground">Permanently delete your account and all of your data.</p>
                 </div>
-                 <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" disabled={!canEdit}>Delete</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your
-                            account and remove your data from our servers.
-                        </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() =>
-                            toast({
-                                title: 'Account Deletion Requested',
-                                description: 'Your account is scheduled for deletion.',
-                                variant: 'destructive',
-                            })
-                            }
-                        >
-                            Continue
-                        </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                 <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="inline-block">
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" disabled={!canEdit}>Delete</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete your
+                                    account and remove your data from our servers.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={() =>
+                                    toast({
+                                        title: 'Account Deletion Requested',
+                                        description: 'Your account is scheduled for deletion.',
+                                        variant: 'destructive',
+                                    })
+                                    }
+                                >
+                                    Continue
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                       </div>
+                    </TooltipTrigger>
+                    {!canEdit && (
+                        <TooltipContent>
+                          <p>Only Admins can delete accounts.</p>
+                        </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
             </div>
           </CardContent>
         </Card>
         
         <div className="flex justify-end">
-            <Button onClick={handleSaveChanges} disabled={!canEdit}>Save Changes</Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                   <div className="inline-block">
+                      <Button onClick={handleSaveChanges} disabled={!canEdit}>Save Changes</Button>
+                   </div>
+                </TooltipTrigger>
+                {!canEdit && (
+                    <TooltipContent>
+                      <p>Only Admins can save changes.</p>
+                    </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
         </div>
       </div>
     </div>

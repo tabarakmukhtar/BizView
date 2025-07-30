@@ -122,7 +122,9 @@ export default function FinancialsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Financial Summaries</h1>
-          <p className="text-muted-foreground">Review and manage all your financial records. Only Admins can add new records.</p>
+          <p className="text-muted-foreground">
+            {role === 'Admin' ? 'Review and manage all your financial records.' : 'Review all financial records.'}
+          </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportData} disabled={financialData.length === 0}>

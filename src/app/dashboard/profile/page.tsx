@@ -11,6 +11,8 @@ import { toast } from '@/hooks/use-toast';
 import { Upload } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
 
 const profileDetails: Record<string, { email: string, title: string }> = {
   Manager: {
@@ -162,7 +164,9 @@ export default function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
-            <CardDescription>Update your personal information here. Only Admins can change profile pictures.</CardDescription>
+            <CardDescription>
+                {canEdit ? "Update your personal information here." : "Only Admins can change profile pictures."}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -189,14 +193,40 @@ export default function ProfilePage() {
                         accept="image/*"
                         disabled={!canEdit}
                     />
-                    <Button variant="outline" onClick={handleUploadClick} disabled={!canEdit}>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload Picture
-                    </Button>
+                     <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className='inline-block'>
+                            <Button variant="outline" onClick={handleUploadClick} disabled={!canEdit}>
+                                <Upload className="mr-2 h-4 w-4" />
+                                Upload Picture
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                         {!canEdit && (
+                          <TooltipContent>
+                            <p>Only Admins can change profile pictures.</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
                     <p className="text-sm text-muted-foreground">PNG, JPG, GIF up to 10MB.</p>
                 </div>
             </div>
-            <Button onClick={handleSaveChanges} disabled={!canEdit}>Save Changes</Button>
+             <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="inline-block">
+                    <Button onClick={handleSaveChanges} disabled={!canEdit}>Save Changes</Button>
+                  </div>
+                </TooltipTrigger>
+                 {!canEdit && (
+                  <TooltipContent>
+                    <p>Only Admins can save changes.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           </CardContent>
         </Card>
       </div>

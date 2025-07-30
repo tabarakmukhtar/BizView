@@ -10,11 +10,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const faqs = [
   {
     question: 'How do I add a new client?',
-    answer: 'Navigate to the "Clients" page from the sidebar. Click the "Add Client" button in the top right corner, fill in the required details in the dialog, and click "Save Client".'
+    answer: 'Navigate to the "Clients" page from the sidebar. Click the "Add Client" button in the top right corner, fill in the required details in the dialog, and click "Save Client". This action is restricted to Admins only.'
   },
   {
     question: 'Can I export my financial data?',
@@ -90,23 +91,34 @@ export default function SupportPage() {
             <CardHeader className='flex-row items-center justify-between'>
               <div>
                 <CardTitle>Contact Us</CardTitle>
-                <CardDescription>Can't find the answer? Reach out to us.</CardDescription>
+                <CardDescription>
+                  {canEdit ? 'Edit the contact details below.' : "Can't find the answer? Reach out."}
+                </CardDescription>
               </div>
-              {canEdit && (
-                <div>
-                  {isEditing ? (
-                    <Button onClick={handleSave} size="sm">
-                      <Save className="mr-2 h-4 w-4" />
-                      Save
-                    </Button>
-                  ) : (
-                    <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
-                       <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </Button>
+               <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="inline-block">
+                       {isEditing ? (
+                        <Button onClick={handleSave} size="sm" disabled={!canEdit}>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save
+                        </Button>
+                      ) : (
+                        <Button onClick={() => setIsEditing(true)} variant="outline" size="sm" disabled={!canEdit}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </Button>
+                      )}
+                    </div>
+                  </TooltipTrigger>
+                  {!canEdit && (
+                    <TooltipContent>
+                      <p>Only Admins can edit contact info.</p>
+                    </TooltipContent>
                   )}
-                </div>
-              )}
+                </Tooltip>
+              </TooltipProvider>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start gap-4">
@@ -114,7 +126,7 @@ export default function SupportPage() {
                 <div className="w-full">
                   <Label htmlFor="email-contact" className="font-semibold">Email</Label>
                   {isEditing ? (
-                    <Input id="email-contact" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" />
+                    <Input id="email-contact" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" disabled={!canEdit}/>
                   ) : (
                      <>
                       <a href={`mailto:${email}`} className="block text-sm text-primary hover:underline">
@@ -130,7 +142,7 @@ export default function SupportPage() {
                 <div className="w-full">
                   <Label htmlFor="phone-contact" className="font-semibold">Phone</Label>
                    {isEditing ? (
-                    <Input id="phone-contact" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1" />
+                    <Input id="phone-contact" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1" disabled={!canEdit}/>
                   ) : (
                     <>
                       <a href={`tel:${phone}`} className="block text-sm text-primary hover:underline">

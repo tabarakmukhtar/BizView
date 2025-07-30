@@ -28,6 +28,13 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     }
+    // Role-based access for Accountant - ONLY Financials
+    if (userRole === 'Accountant') {
+        const allowedPaths = ['/dashboard', '/dashboard/financials', '/dashboard/profile', '/dashboard/support'];
+        if (!allowedPaths.some(p => pathname.startsWith(p))) {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+    }
   }
 
   return NextResponse.next();

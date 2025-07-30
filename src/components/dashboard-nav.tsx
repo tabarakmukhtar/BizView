@@ -20,36 +20,42 @@ import {
 } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
 
-const menuItems = [
+const allMenuItems = [
   {
     href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
+    roles: ['Admin', 'Manager', 'Accountant'],
   },
   {
     href: '/dashboard/financials',
     label: 'Financials',
     icon: Wallet,
+    roles: ['Admin', 'Manager', 'Accountant'],
   },
   {
     href: '/dashboard/forecasting',
     label: 'Forecasting',
     icon: LineChart,
+    roles: ['Admin', 'Manager'],
   },
   {
     href: '/dashboard/calendar',
     label: 'Calendar',
     icon: Calendar,
+    roles: ['Admin', 'Manager'],
   },
   {
     href: '/dashboard/clients',
     label: 'Clients',
     icon: Users,
+    roles: ['Admin', 'Manager'],
   },
    {
     href: '/dashboard/search',
     label: 'Search',
     icon: Search,
+    roles: ['Admin', 'Manager', 'Accountant'],
   },
 ];
 
@@ -64,12 +70,15 @@ const secondaryMenuItems = [
         href: '/dashboard/support',
         label: 'Help & Support',
         icon: HelpCircle,
+        roles: ['Admin', 'Manager', 'Accountant'],
     }
 ]
 
 export function DashboardNav() {
   const pathname = usePathname();
   const { role } = useUser();
+
+  const menuItems = allMenuItems.filter(item => item.roles.includes(role));
 
   return (
     <nav className="flex flex-col h-full">
@@ -93,7 +102,7 @@ export function DashboardNav() {
       <div className="mt-auto">
         <SidebarMenu>
           {secondaryMenuItems.map((item) => {
-            if (item.roles && !item.roles.includes(role)) {
+            if (!item.roles.includes(role)) {
               return null;
             }
             return (
