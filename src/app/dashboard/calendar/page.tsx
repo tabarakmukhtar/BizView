@@ -1,16 +1,27 @@
+
+'use client';
+
 import type { Appointment } from "@/lib/definitions";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
 
-const appointments: Appointment[] = [
+const initialAppointments: Appointment[] = [
   { id: '1', time: '10:00 AM', title: 'Project Kickoff with Acme Inc.', description: 'Discussing the new marketing campaign strategy.' },
   { id: '2', time: '01:00 PM', title: 'Team Sync-up', description: 'Weekly check-in on project progress and blockers.' },
   { id: '3', time: '03:30 PM', title: 'Interview with Candidate', description: 'Senior Frontend Developer position.' },
 ];
 
 export default function CalendarPage() {
+  const [appointments, setAppointments] = useState(initialAppointments);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  
   const today = new Date();
 
   return (
@@ -20,10 +31,45 @@ export default function CalendarPage() {
           <h1 className="text-3xl font-bold">Appointment Calendar</h1>
           <p className="text-muted-foreground">Manage your schedule and appointments.</p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          New Appointment
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Appointment
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New Appointment</DialogTitle>
+              <DialogDescription>
+                Fill in the details below to add a new appointment to your calendar.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="title" className="text-right">
+                  Title
+                </Label>
+                <Input id="title" placeholder="e.g. Team Meeting" className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="time" className="text-right">
+                  Time
+                </Label>
+                <Input id="time" type="time" className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Textarea id="description" placeholder="A brief description of the appointment." className="col-span-3" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Save Appointment</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-8 md:grid-cols-3">
@@ -32,7 +78,8 @@ export default function CalendarPage() {
             <CardContent className="p-0">
               <Calendar
                 mode="single"
-                selected={today}
+                selected={selectedDate}
+                onSelect={setSelectedDate}
                 className="w-full"
               />
             </CardContent>
@@ -41,7 +88,7 @@ export default function CalendarPage() {
         <div className="md:col-span-2">
           <Card className="h-full">
             <CardHeader>
-              <CardTitle>Appointments for {today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</CardTitle>
+              <CardTitle>Appointments for {selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'the selected date'}</CardTitle>
             </CardHeader>
             <CardContent>
               {appointments.length > 0 ? (
