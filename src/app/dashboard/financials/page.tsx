@@ -22,27 +22,14 @@ import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-const initialFinancialData: FinancialRecord[] = [
-  { id: 'txn1', date: '2024-06-15', description: 'Website Redesign Project', amount: 7500, type: 'revenue', category: 'Web Development' },
-  { id: 'txn2', date: '2024-06-14', description: 'Monthly Cloud Hosting', amount: 250, type: 'expense', category: 'Utilities' },
-  { id: 'txn3', date: '2024-06-12', description: 'Client Retainer - Acme Corp', amount: 3000, type: 'revenue', category: 'Consulting' },
-  { id: 'txn4', date: '2024-06-11', description: 'Marketing Campaign', amount: 1200, type: 'expense', category: 'Marketing' },
-  { id: 'txn5', date: '2024-06-10', description: 'Office Supplies Purchase', amount: 175.50, type: 'expense', category: 'Office' },
-  { id: 'txn6', date: '2024-06-08', description: 'Logo Design for Startup', amount: 1500, type: 'revenue', category: 'Design' },
-  { id: 'txn7', date: '2024-06-05', description: 'Annual Software License', amount: 800, type: 'expense', category: 'Software' },
-];
+import { useData } from "@/hooks/use-data";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function FinancialsPage() {
-  const [financialData, setFinancialData] = useState(initialFinancialData);
+  const { financialData, setFinancialData, loading } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { role } = useUser();
-  const [isClient, setIsClient] = useState(false);
   
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   // State for the new record form
   const [newDate, setNewDate] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -50,7 +37,7 @@ export default function FinancialsPage() {
   const [newType, setNewType] = useState<'revenue' | 'expense' | ''>('');
   const [newAmount, setNewAmount] = useState<number | string>('');
 
-  const canAddRecord = isClient && role === 'Admin';
+  const canAddRecord = role === 'Admin';
 
   const handleAddRecord = () => {
     if (!newDate || !newDescription || !newCategory || !newType || !newAmount) {
@@ -63,7 +50,7 @@ export default function FinancialsPage() {
     }
 
     const newRecord: FinancialRecord = {
-      id: `txn${financialData.length + 1}`,
+      id: `txn${Date.now()}`,
       date: newDate,
       description: newDescription,
       amount: Number(newAmount),
@@ -113,8 +100,36 @@ export default function FinancialsPage() {
     });
   };
 
-  if (!isClient) {
-    return null;
+  if (loading) {
+     return (
+       <div className="flex flex-col gap-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-9 w-72 mb-2" />
+            <Skeleton className="h-5 w-80" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+             <div className="space-y-4">
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-4 border-b">
+                   <Skeleton className="h-4 w-24" />
+                   <Skeleton className="h-4 w-48" />
+                   <Skeleton className="h-6 w-28" />
+                   <Skeleton className="h-6 w-20" />
+                   <Skeleton className="h-4 w-24 text-right" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (

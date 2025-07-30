@@ -32,27 +32,17 @@ import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useData } from "@/hooks/use-data";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const initialClients: Client[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice.j@example.com', company: 'Innovate LLC', status: 'active', lastContact: '2024-06-20' },
-  { id: '2', name: 'Bob Smith', email: 'bob.s@example.com', company: 'Solutions Inc.', status: 'active', lastContact: '2024-06-18' },
-  { id: '3', name: 'Charlie Brown', email: 'charlie.b@example.com', company: 'Tech Forward', status: 'inactive', lastContact: '2024-03-10' },
-  { id: '4', name: 'Diana Prince', email: 'diana.p@example.com', company: 'Global Synergy', status: 'active', lastContact: '2024-06-21' },
-  { id: '5', name: 'Ethan Hunt', email: 'ethan.h@example.com', company: 'Mission Group', status: 'active', lastContact: '2024-05-30' },
-];
 
 export default function ClientsPage() {
-  const [clients, setClients] = useState(initialClients);
+  const { clients, setClients, loading } = useData();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [isClient, setIsClient] = useState(false);
   const { role } = useUser();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // Add Form state
   const [newName, setNewName] = useState('');
@@ -66,7 +56,7 @@ export default function ClientsPage() {
   const [editCompany, setEditCompany] = useState('');
   const [editStatus, setEditStatus] = useState<'active' | 'inactive' | ''>('');
 
-  const canEdit = isClient && role === 'Admin';
+  const canEdit = role === 'Admin';
 
   const handleSaveClient = () => {
     if (!newName || !newEmail || !newCompany || !newStatus) {
@@ -79,7 +69,7 @@ export default function ClientsPage() {
     }
 
     const newClient: Client = {
-      id: `client${clients.length + 1}`,
+      id: `client${Date.now()}`,
       name: newName,
       email: newEmail,
       company: newCompany,
@@ -169,6 +159,43 @@ export default function ClientsPage() {
     });
   };
 
+  if (loading) {
+    return (
+       <div className="flex flex-col gap-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-9 w-64 mb-2" />
+            <Skeleton className="h-5 w-80" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+             <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-4 border-b">
+                   <div className="flex items-center gap-3">
+                      <Skeleton className="h-9 w-9 rounded-full" />
+                      <div className="space-y-1">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-40" />
+                      </div>
+                   </div>
+                   <Skeleton className="h-4 w-24" />
+                   <Skeleton className="h-6 w-20" />
+                   <Skeleton className="h-4 w-24" />
+                   <Skeleton className="h-8 w-8" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">

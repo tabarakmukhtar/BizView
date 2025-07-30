@@ -79,6 +79,7 @@ export function DashboardNav() {
   const { role } = useUser();
 
   const menuItems = allMenuItems.filter(item => item.roles.includes(role));
+  const filteredSecondaryMenuItems = secondaryMenuItems.filter(item => item.roles.includes(role));
 
   return (
     <nav className="flex flex-col h-full">
@@ -101,11 +102,7 @@ export function DashboardNav() {
       </div>
       <div className="mt-auto">
         <SidebarMenu>
-          {secondaryMenuItems.map((item) => {
-            if (!item.roles.includes(role)) {
-              return null;
-            }
-            return (
+          {filteredSecondaryMenuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href}>
                   <SidebarMenuButton
@@ -117,8 +114,7 @@ export function DashboardNav() {
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
-            );
-          })}
+          ))}
         </SidebarMenu>
       </div>
     </nav>

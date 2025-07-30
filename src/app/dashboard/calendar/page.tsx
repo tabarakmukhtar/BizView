@@ -16,25 +16,15 @@ import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/hooks/use-user";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-const initialAppointments: Appointment[] = [
-  { id: '1', time: '10:00 AM', title: 'Project Kickoff with Acme Inc.', description: 'Discussing the new marketing campaign strategy.' },
-  { id: '2', time: '01:00 PM', title: 'Team Sync-up', description: 'Weekly check-in on project progress and blockers.' },
-  { id: '3', time: '03:30 PM', title: 'Interview with Candidate', description: 'Senior Frontend Developer position.' },
-];
+import { useData } from "@/hooks/use-data";
 
 export default function CalendarPage() {
-  const [appointments, setAppointments] = useState(initialAppointments);
+  const { appointments, setAppointments, loading } = useData();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const [isClient, setIsClient] = useState(false);
   const { role } = useUser();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // State for the new appointment form
   const [newTitle, setNewTitle] = useState('');
@@ -46,7 +36,7 @@ export default function CalendarPage() {
   const [editTime, setEditTime] = useState('');
   const [editDescription, setEditDescription] = useState('');
   
-  const canEdit = isClient && role === 'Admin';
+  const canEdit = role === 'Admin' || role === 'Manager';
 
   const handleSaveAppointment = () => {
     if (!newTitle || !newTime) {
@@ -59,7 +49,7 @@ export default function CalendarPage() {
     }
 
     const newAppointment: Appointment = {
-      id: `apt${appointments.length + 1}`,
+      id: `apt${Date.now()}`,
       title: newTitle,
       time: newTime,
       description: newDescription,
@@ -112,7 +102,7 @@ export default function CalendarPage() {
     });
   };
 
-  if (!isClient) {
+  if (loading) {
     return (
        <div className="flex flex-col gap-8">
         <div className="flex items-center justify-between">
@@ -152,7 +142,7 @@ export default function CalendarPage() {
               </TooltipTrigger>
               {!canEdit && (
                 <TooltipContent>
-                  <p>Only Admins can add appointments. Please contact an Admin for assistance.</p>
+                  <p>Only Admins or Managers can add appointments. Please contact one for assistance.</p>
                 </TooltipContent>
               )}
             </Tooltip>
@@ -242,7 +232,7 @@ export default function CalendarPage() {
                           </TooltipTrigger>
                           {!canEdit && (
                             <TooltipContent>
-                              <p>Only Admins can perform actions.</p>
+                              <p>Only Admins or Managers can perform actions.</p>
                             </TooltipContent>
                           )}
                         </Tooltip>

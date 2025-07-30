@@ -18,33 +18,32 @@ import { Badge } from '@/components/ui/badge';
 import { DollarSign, Users, TrendingUp, TrendingDown, PackageOpen } from 'lucide-react';
 import { FinancialChart } from '@/components/financial-chart';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { FinancialRecord } from '@/lib/definitions';
 import { useUser } from '@/hooks/use-user';
-
+import { useData } from '@/hooks/use-data';
 
 export default function DashboardPage() {
     const { name } = useUser();
-    const [summaryData, setSummaryData] = useState({
-        revenue: 45231.89,
-        expenses: 12873.45,
-        profit: 32358.44,
-        clients: 57,
-    });
-    const [recentTransactions, setRecentTransactions] = useState<Omit<FinancialRecord, 'date' | 'category' | 'id'>[]>([
-        { description: 'Client Project Alpha', amount: 5000, type: 'revenue' },
-        { description: 'Software Subscription', amount: 150, type: 'expense' },
-        { description: 'Client Retainer Beta', amount: 2500, type: 'revenue' },
-        { description: 'Office Supplies', amount: 230.50, type: 'expense' },
-        { description: 'Consulting Services', amount: 1200, type: 'revenue' },
-    ]);
-    const [isClient, setIsClient] = useState(false);
+    const { financialData, clients, loading } = useData();
 
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+    const summaryData = useMemo(() => {
+        const revenue = financialData.filter(r => r.type === 'revenue').reduce((acc, r) => acc + r.amount, 0);
+        const expenses = financialData.filter(r => r.type === 'expense').reduce((acc, r) => acc + r.amount, 0);
+        const profit = revenue - expenses;
+        const activeClients = clients.filter(c => c.status === 'active').length;
 
-    if (!isClient) {
+        return { revenue, expenses, profit, clients: activeClients };
+    }, [financialData, clients]);
+    
+    const recentTransactions = useMemo(() => {
+        return [...financialData]
+            .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .slice(0, 5);
+    }, [financialData]);
+
+
+    if (loading) {
       return (
         <div className="flex flex-col gap-8">
             <div>
@@ -157,13 +156,13 @@ export default function DashboardPage() {
             {recentTransactions.length > 0 ? (
                  <Table>
                     <TableBody>
-                        {recentTransactions.map((transaction, index) => (
-                            <TableRow key={index}>
+                        {recentTransactions.map((transaction) => (
+                            <TableRow key={transaction.id}>
                                 <TableCell>
                                     <div className="font-medium">{transaction.description}</div>
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <span className={transaction.type === 'revenue' ? 'text-green-600' : 'text-red-600'}>
+                                    <span className={`font-mono ${transaction.type === 'revenue' ? 'text-green-600' : 'text-red-600'}`}>
                                         {transaction.type === 'expense' && '-'}${transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                                     </span>
                                 </TableCell>
