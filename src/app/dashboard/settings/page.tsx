@@ -29,6 +29,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -36,6 +37,9 @@ export default function SettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   useEffect(() => {
     setIsMounted(true);
@@ -142,15 +146,30 @@ export default function SettingsPage() {
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="current-password" className="text-right">Current</Label>
-                        <Input id="current-password" type="password" className="col-span-3" />
+                        <div className="col-span-3 relative">
+                           <Input id="current-password" type={showCurrentPassword ? "text" : "password"} className="pr-10" />
+                           <Button variant="ghost" size="icon" className="absolute top-1/2 right-0 -translate-y-1/2 h-8 w-8" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
+                            {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="new-password" className="text-right">New</Label>
-                        <Input id="new-password" type="password" className="col-span-3" />
+                        <div className="col-span-3 relative">
+                          <Input id="new-password" type={showNewPassword ? "text" : "password"} className="pr-10" />
+                           <Button variant="ghost" size="icon" className="absolute top-1/2 right-0 -translate-y-1/2 h-8 w-8" onClick={() => setShowNewPassword(!showNewPassword)}>
+                            {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </div>
                        <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="confirm-password" className="text-right">Confirm</Label>
-                        <Input id="confirm-password" type="password" className="col-span-3" />
+                        <div className="col-span-3 relative">
+                           <Input id="confirm-password" type={showConfirmPassword ? "text" : "password"} className="pr-10" />
+                           <Button variant="ghost" size="icon" className="absolute top-1/2 right-0 -translate-y-1/2 h-8 w-8" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <DialogFooter>
