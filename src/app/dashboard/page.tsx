@@ -39,7 +39,6 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Simulate data fetching
         const timer = setTimeout(() => {
             setLoading(false);
         }, 1500);

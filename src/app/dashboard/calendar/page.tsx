@@ -26,8 +26,10 @@ export default function CalendarPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     setSelectedDate(new Date());
   }, []);
 
@@ -105,6 +107,10 @@ export default function CalendarPage() {
       variant: "destructive"
     });
   };
+
+  if (!isClient) {
+    return null;
+  }
   
   return (
     <div className="flex flex-col gap-8">
