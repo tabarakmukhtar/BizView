@@ -19,23 +19,45 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const handleSaveChanges = () => {
+    // In a real application, you would save these settings to a backend.
     toast({
       title: 'Settings Saved',
       description: 'Your new settings have been applied.',
     });
   };
+  
+  const handleChangePassword = () => {
+    // In a real application, you would handle password change logic here.
+    toast({
+      title: 'Password Updated',
+      description: 'Your password has been changed successfully.',
+    });
+    setIsPasswordDialogOpen(false);
+  };
+
 
   if (!isMounted) {
     return null; // or a loading skeleton
@@ -106,9 +128,38 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
              <div className="flex items-center justify-between">
                 <p className="text-sm font-medium">Change Password</p>
-                <Button variant="outline">Change</Button>
+                <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">Change</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Change Password</DialogTitle>
+                      <DialogDescription>
+                        Enter your new password below. Make sure it's secure.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="current-password" className="text-right">Current</Label>
+                        <Input id="current-password" type="password" className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="new-password" className="text-right">New</Label>
+                        <Input id="new-password" type="password" className="col-span-3" />
+                      </div>
+                       <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="confirm-password" className="text-right">Confirm</Label>
+                        <Input id="confirm-password" type="password" className="col-span-3" />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={handleChangePassword}>Save new password</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
             </div>
-             <div className="flex items-center justify-between pt-4 border-t border-destructive/20">
+             <div className="flex items-center justify-between pt-4 border-t border-destructive/20 mt-4">
                 <div className='flex flex-col'>
                     <p className="text-sm font-medium text-destructive">Delete Account</p>
                     <p className="text-sm text-muted-foreground">Permanently delete your account and all of your data.</p>
