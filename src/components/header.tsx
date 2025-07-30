@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { useUser } from '@/hooks/use-user';
 
 const notifications = [
   {
@@ -38,6 +39,7 @@ const notifications = [
 
 export function Header() {
   const router = useRouter();
+  const { name, role } = useUser();
   const [avatarUrl, setAvatarUrl] = useState('https://placehold.co/40x40');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -59,6 +61,7 @@ export function Header() {
 
   const handleLogout = () => {
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = 'user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     router.push('/login');
   };
 
@@ -127,16 +130,16 @@ export function Header() {
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-9 w-9">
                 <AvatarImage src={avatarUrl} alt="@manager" data-ai-hint="person" />
-                <AvatarFallback>M</AvatarFallback>
+                <AvatarFallback>{name.charAt(0)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">The Manager</p>
+                <p className="text-sm font-medium leading-none">{name}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  manager@bizview.com
+                  {role}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -147,12 +150,14 @@ export function Header() {
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-               <Link href="/dashboard/settings">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </Link>
-            </DropdownMenuItem>
+             {(role === 'Manager' || role === 'Admin') && (
+              <DropdownMenuItem asChild>
+                 <Link href="/dashboard/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
                <Link href="/dashboard/support">
                 <LifeBuoy className="mr-2 h-4 w-4" />

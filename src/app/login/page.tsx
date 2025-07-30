@@ -7,16 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Briefcase } from "lucide-react";
 import { useRouter } from 'next/navigation';
-import type { FormEvent } from 'react';
+import { type FormEvent, useState } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [role, setRole] = useState('Manager');
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     // In a real app, you would validate credentials against a server.
-    // Here, we'll just set a cookie to simulate a logged-in state.
+    // Here, we'll just set cookies to simulate a logged-in state.
     document.cookie = 'auth_token=true; path=/; max-age=3600'; // Expires in 1 hour
+    document.cookie = `user_role=${role}; path=/; max-age=3600`;
     router.push('/dashboard');
   };
 
@@ -46,6 +49,20 @@ export default function LoginPage() {
                   </a>
                 </div>
                 <Input id="password" type="password" required defaultValue="password" />
+              </div>
+              <div className="space-y-2">
+                 <Label htmlFor="role">Role</Label>
+                  <Select onValueChange={setRole} defaultValue="Manager">
+                    <SelectTrigger id="role">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Manager">Manager</SelectItem>
+                      <SelectItem value="Admin">Admin</SelectItem>
+                      <SelectItem value="Accountant">Accountant</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Select a role to simulate different permissions.</p>
               </div>
               <Button type="submit" className="w-full text-lg py-6">
                 Sign In

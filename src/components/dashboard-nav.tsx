@@ -18,6 +18,7 @@ import {
   HelpCircle,
   Search,
 } from 'lucide-react';
+import { useUser } from '@/hooks/use-user';
 
 const menuItems = [
   {
@@ -57,6 +58,7 @@ const secondaryMenuItems = [
         href: '/dashboard/settings',
         label: 'Settings',
         icon: Settings,
+        roles: ['Manager', 'Admin'],
     },
     {
         href: '/dashboard/support',
@@ -67,6 +69,7 @@ const secondaryMenuItems = [
 
 export function DashboardNav() {
   const pathname = usePathname();
+  const { role } = useUser();
 
   return (
     <nav className="flex flex-col h-full">
@@ -89,19 +92,24 @@ export function DashboardNav() {
       </div>
       <div className="mt-auto">
         <SidebarMenu>
-          {secondaryMenuItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <Link href={item.href}>
-                <SidebarMenuButton
-                  isActive={pathname === item.href}
-                  tooltip={item.label}
-                >
-                  <item.icon />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
+          {secondaryMenuItems.map((item) => {
+            if (item.roles && !item.roles.includes(role)) {
+              return null;
+            }
+            return (
+              <SidebarMenuItem key={item.href}>
+                <Link href={item.href}>
+                  <SidebarMenuButton
+                    isActive={pathname === item.href}
+                    tooltip={item.label}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </div>
     </nav>

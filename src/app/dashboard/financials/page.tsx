@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { useUser } from "@/hooks/use-user";
 
 const initialFinancialData: FinancialRecord[] = [
   { id: 'txn1', date: '2024-06-15', description: 'Website Redesign Project', amount: 7500, type: 'revenue', category: 'Web Development' },
@@ -34,6 +35,7 @@ const initialFinancialData: FinancialRecord[] = [
 export default function FinancialsPage() {
   const [financialData, setFinancialData] = useState(initialFinancialData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { role } = useUser();
   
   // State for the new record form
   const [newDate, setNewDate] = useState('');
@@ -41,6 +43,8 @@ export default function FinancialsPage() {
   const [newCategory, setNewCategory] = useState('');
   const [newType, setNewType] = useState<'revenue' | 'expense' | ''>('');
   const [newAmount, setNewAmount] = useState<number | string>('');
+
+  const canAddRecord = role === 'Manager' || role === 'Admin';
 
   const handleAddRecord = () => {
     if (!newDate || !newDescription || !newCategory || !newType || !newAmount) {
@@ -118,7 +122,7 @@ export default function FinancialsPage() {
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button disabled={!canAddRecord} title={!canAddRecord ? "You don't have permission to add records" : ""}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Record
               </Button>
