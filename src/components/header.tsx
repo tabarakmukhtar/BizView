@@ -16,9 +16,27 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Search, Bell, LifeBuoy, LogOut, User, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export function Header() {
   const router = useRouter();
+  const [avatarUrl, setAvatarUrl] = useState('https://placehold.co/40x40');
+
+  useEffect(() => {
+    const updateAvatar = () => {
+      const savedAvatar = localStorage.getItem('user-avatar');
+      if (savedAvatar) {
+        setAvatarUrl(savedAvatar);
+      }
+    };
+
+    updateAvatar();
+
+    window.addEventListener('storage', updateAvatar);
+    return () => {
+      window.removeEventListener('storage', updateAvatar);
+    };
+  }, []);
 
   const handleLogout = () => {
     // In a real app, you'd call an API to invalidate the session.
@@ -53,7 +71,7 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="https://placehold.co/40x40" alt="@manager" data-ai-hint="person" />
+                <AvatarImage src={avatarUrl} alt="@manager" data-ai-hint="person" />
                 <AvatarFallback>M</AvatarFallback>
               </Avatar>
             </Button>

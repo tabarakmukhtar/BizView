@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, type ChangeEvent } from 'react';
+import { useState, useRef, type ChangeEvent, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,13 +15,23 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('manager@bizview.com');
   const [title, setTitle] = useState('Senior Business Manager');
   const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/100x100');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    const savedAvatar = localStorage.getItem('user-avatar');
+    if (savedAvatar) {
+      setAvatarPreview(savedAvatar);
+    }
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveChanges = () => {
-    // In a real application, you would make an API call here to save the changes,
-    // including uploading the new avatar image file if one was selected.
-    console.log('Saving changes:', { name, email, title });
+    // In a real application, you would make an API call here to save the changes.
+    localStorage.setItem('user-avatar', avatarPreview);
+    window.dispatchEvent(new Event('storage')); // Manually trigger storage event for the header to update
+
     toast({
       title: 'Profile Updated',
       description: 'Your changes have been saved successfully.',
@@ -42,6 +52,10 @@ export default function ProfilePage() {
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
+
+  if (!isClient) {
+    return null; // or a loading skeleton
+  }
 
   return (
     <div className="grid gap-8 md:grid-cols-3">
