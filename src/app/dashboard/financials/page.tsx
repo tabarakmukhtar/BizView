@@ -26,7 +26,7 @@ import { useData } from "@/hooks/use-data";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function FinancialsPage() {
-  const { financialData, setFinancialData, loading } = useData();
+  const { financialData, setFinancialData, loading, currency, setCurrency } = useData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { role } = useUser();
   
@@ -141,7 +141,19 @@ export default function FinancialsPage() {
             {role === 'Admin' ? 'Review and manage all your financial records.' : 'Review all financial records.'}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+           <div className="w-32">
+            <Select value={currency} onValueChange={(value) => setCurrency(value as 'USD' | 'EUR' | 'INR')}>
+              <SelectTrigger>
+                <SelectValue placeholder="Currency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USD">USD ($)</SelectItem>
+                <SelectItem value="EUR">EUR (€)</SelectItem>
+                <SelectItem value="INR">INR (₹)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button variant="outline" onClick={handleExportData} disabled={financialData.length === 0}>
             <FileDown className="mr-2 h-4 w-4" />
             Export Data
@@ -237,7 +249,7 @@ export default function FinancialsPage() {
                     <TableCell className={`text-right font-mono ${record.type === 'revenue' ? 'text-green-600' : 'text-red-600'}`}>
                       {record.amount.toLocaleString('en-US', {
                         style: 'currency',
-                        currency: 'USD',
+                        currency: currency,
                       })}
                     </TableCell>
                   </TableRow>

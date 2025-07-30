@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
+import { useData } from '@/hooks/use-data';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 const chartData = [
@@ -33,6 +34,14 @@ const chartConfig = {
 
 
 export function FinancialChart() {
+    const { currency } = useData();
+
+    const currencySymbols = {
+        USD: '$',
+        EUR: '€',
+        INR: '₹',
+    }
+
     return (
         <Card className="lg:col-span-4">
           <CardHeader>
@@ -50,8 +59,15 @@ export function FinancialChart() {
                       tickMargin={10}
                       axisLine={false}
                     />
-                     <YAxis tickLine={false} axisLine={false} tickMargin={10} tickFormatter={(value) => `$${value/1000}k`} />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                     <YAxis tickLine={false} axisLine={false} tickMargin={10} tickFormatter={(value) => `${currencySymbols[currency]}${value/1000}k`} />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(value, name, props) => (
+                        <div className="flex flex-col">
+                            <span>{props.payload.month}</span>
+                            <span style={{ color: props.color }}>
+                                {name}: {value.toLocaleString('en-US', { style: 'currency', currency: currency })}
+                            </span>
+                        </div>
+                    )} />} />
                     <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="expenses" fill="var(--color-expenses)" radius={[4, 4, 0, 0]} />
                 </BarChart>

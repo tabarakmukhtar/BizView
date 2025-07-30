@@ -24,7 +24,7 @@ import { useData } from '@/hooks/use-data';
 
 export default function DashboardPage() {
     const { name } = useUser();
-    const { financialData, clients, loading } = useData();
+    const { financialData, clients, loading, currency } = useData();
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
@@ -113,7 +113,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${summaryData.revenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{summaryData.revenue.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
@@ -123,7 +123,7 @@ export default function DashboardPage() {
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-             <div className="text-2xl font-bold">${summaryData.expenses.toLocaleString()}</div>
+             <div className="text-2xl font-bold">{summaryData.expenses.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">+5.2% from last month</p>
           </CardContent>
         </Card>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-500">${summaryData.profit.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-500">{summaryData.profit.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">+25.0% from last month</p>
           </CardContent>
         </Card>
@@ -167,7 +167,7 @@ export default function DashboardPage() {
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <span className={`font-mono ${transaction.type === 'revenue' ? 'text-green-600' : 'text-red-600'}`}>
-                                        {transaction.type === 'expense' && '-'}${transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                                        {transaction.type === 'expense' && '-'}{transaction.amount.toLocaleString('en-US', { style: 'currency', currency: currency })}
                                     </span>
                                 </TableCell>
                                 <TableCell>

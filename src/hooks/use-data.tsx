@@ -29,6 +29,7 @@ const initialAppointments: Appointment[] = [
   { id: '3', time: '03:30 PM', title: 'Interview with Candidate', description: 'Senior Frontend Developer position.' },
 ];
 
+type Currency = 'USD' | 'EUR' | 'INR';
 
 interface DataContextType {
   clients: Client[];
@@ -37,6 +38,8 @@ interface DataContextType {
   setFinancialData: (data: FinancialRecord[]) => void;
   appointments: Appointment[];
   setAppointments: (appointments: Appointment[]) => void;
+  currency: Currency;
+  setCurrency: (currency: Currency) => void;
   loading: boolean;
 }
 
@@ -46,6 +49,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [clients, setClientsState] = useState<Client[]>([]);
   const [financialData, setFinancialDataState] = useState<FinancialRecord[]>([]);
   const [appointments, setAppointmentsState] = useState<Appointment[]>([]);
+  const [currency, setCurrencyState] = useState<Currency>('USD');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,12 +63,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       const storedAppointments = localStorage.getItem('bizview-appointments');
       setAppointmentsState(storedAppointments ? JSON.parse(storedAppointments) : initialAppointments);
+      
+      const storedCurrency = localStorage.getItem('bizview-currency');
+      setCurrencyState((storedCurrency as Currency) || 'USD');
+
     } catch (error) {
       console.error("Failed to parse data from localStorage", error);
       // Fallback to initial data if localStorage is corrupt
       setClientsState(initialClients);
       setFinancialDataState(initialFinancialData);
       setAppointmentsState(initialAppointments);
+      setCurrencyState('USD');
     } finally {
       setLoading(false);
     }
@@ -84,6 +93,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setAppointmentsState(newAppointments);
     localStorage.setItem('bizview-appointments', JSON.stringify(newAppointments));
   };
+  
+  const setCurrency = (newCurrency: Currency) => {
+    setCurrencyState(newCurrency);
+    localStorage.setItem('bizview-currency', newCurrency);
+  }
 
   return (
     <DataContext.Provider
@@ -94,6 +108,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setFinancialData,
         appointments,
         setAppointments,
+        currency,
+        setCurrency,
         loading,
       }}
     >
