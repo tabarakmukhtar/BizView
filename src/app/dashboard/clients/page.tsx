@@ -15,11 +15,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FileDown, MoreHorizontal, PlusCircle } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const initialClients: Client[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice.j@example.com', company: 'Innovate LLC', status: 'active', lastContact: '2024-06-20' },
@@ -42,7 +51,11 @@ export default function ClientsPage() {
 
   const handleSaveClient = () => {
     if (!newName || !newEmail || !newCompany || !newStatus) {
-      alert('Please fill out all fields.');
+      toast({
+        title: "Error",
+        description: "Please fill out all fields.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -63,6 +76,11 @@ export default function ClientsPage() {
     setNewCompany('');
     setNewStatus('');
     setIsDialogOpen(false);
+    
+    toast({
+      title: "Client Added",
+      description: `${newName} has been successfully added to your client list.`,
+    });
   };
 
   const handleExportData = () => {
@@ -185,9 +203,21 @@ export default function ClientsPage() {
                   </TableCell>
                   <TableCell>{client.lastContact}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Client actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
