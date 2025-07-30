@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { DollarSign, Users, TrendingUp, TrendingDown, PackageOpen } from 'lucide-react';
 import { FinancialChart } from '@/components/financial-chart';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useUser } from '@/hooks/use-user';
 import { useData } from '@/hooks/use-data';
 import { useIsClient } from '@/hooks/use-is-client';

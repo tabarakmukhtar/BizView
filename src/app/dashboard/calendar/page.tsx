@@ -21,7 +21,7 @@ import { useIsClient } from "@/hooks/use-is-client";
 
 export default function CalendarPage() {
   const { appointments, setAppointments, loading } = useData();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
