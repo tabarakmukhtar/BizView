@@ -39,14 +39,19 @@ export default function DashboardPage() {
         { description: 'Consulting Services', amount: 1200, type: 'revenue' },
     ]);
     const [loading, setLoading] = useState(true);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
+        setIsClient(true);
         const timer = setTimeout(() => {
             setLoading(false);
         }, 1500);
         return () => clearTimeout(timer);
     }, []);
 
+    if (!isClient) {
+      return null;
+    }
 
   return (
     <div className="flex flex-col gap-8">

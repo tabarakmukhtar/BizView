@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 
@@ -36,7 +36,12 @@ export default function FinancialsPage() {
   const [financialData, setFinancialData] = useState(initialFinancialData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { role } = useUser();
+  const [isClient, setIsClient] = useState(false);
   
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // State for the new record form
   const [newDate, setNewDate] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -107,6 +112,9 @@ export default function FinancialsPage() {
     });
   };
 
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-8">

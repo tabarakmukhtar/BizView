@@ -38,22 +38,51 @@ export function useUser(): User {
   });
 
   useEffect(() => {
-    const role = getCookie('user_role') as UserRole | undefined;
-    const authToken = getCookie('auth_token');
+    function checkUser() {
+        const role = getCookie('user_role') as UserRole | undefined;
+        const authToken = getCookie('auth_token');
 
-    if (role && authToken === 'true') {
-        setUser({
-            name: names[role] || "User",
-            role: role,
-            isAuthenticated: true,
-        });
-    } else {
-        setUser({
-            name: 'Guest',
-            role: 'Guest',
-            isAuthenticated: false
-        })
+        if (role && authToken === 'true') {
+            setUser({
+                name: names[role] || "User",
+                role: role,
+                isAuthenticated: true,
+            });
+        } else {
+            setUser({
+                name: 'Guest',
+                role: 'Guest',
+                isAuthenticated: false
+            })
+        }
     }
+
+    checkUser();
+
+    // Re-check when user navigates or focus changes, which can happen after login.
+    window.addEventListener('focus', checkUser);
+    
+    // A simple way to detect navigation changes for SPAs
+    const originalPushState = history.pushState;
+    history.pushState = function(...args) {
+        originalPushState.apply(this, args);
+        checkUser();
+    };
+
+    const originalReplaceState = history.replaceState;
+    history.replaceState = function(...args) {
+        originalReplaceState.apply(this, args);
+        checkUser();
+    };
+    
+    window.addEventListener('popstate', checkUser);
+
+    return () => {
+        window.removeEventListener('focus', checkUser);
+        window.removeEventListener('popstate', checkUser);
+        history.pushState = originalPushState;
+        history.replaceState = originalReplaceState;
+    };
   }, []);
 
   return user;
