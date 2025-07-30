@@ -56,14 +56,11 @@ export function DashboardNav() {
             <SidebarMenuItem key={item.href}>
               <Link href={item.href} passHref>
                 <SidebarMenuButton
-                  asChild
                   isActive={pathname === item.href}
                   tooltip={item.label}
                 >
-                  <>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </>
+                  <item.icon />
+                  <span>{item.label}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -74,21 +71,17 @@ export function DashboardNav() {
         <SidebarMenu>
           <SidebarMenuItem>
              <Link href="#" passHref>
-              <SidebarMenuButton asChild tooltip="Settings">
-                <>
-                  <Settings />
-                  <span>Settings</span>
-                </>
+              <SidebarMenuButton tooltip="Settings">
+                <Settings />
+                <span>Settings</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <Link href="#" passHref>
-              <SidebarMenuButton asChild tooltip="Help & Support">
-                <>
-                  <HelpCircle />
-                  <span>Help & Support</span>
-                </>
+              <SidebarMenuButton tooltip="Help & Support">
+                <HelpCircle />
+                <span>Help & Support</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
