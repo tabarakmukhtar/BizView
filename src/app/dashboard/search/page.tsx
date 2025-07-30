@@ -3,7 +3,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, UserX, PackageOpen } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Suspense, useEffect, useState } from 'react';
 import type { Client, FinancialRecord } from '@/lib/definitions';
 import {
@@ -95,7 +95,7 @@ function SearchResults() {
 
       {!hasResults ? (
         <Card>
-           <CardContent>
+           <CardContent className="pt-6">
              <div className="flex flex-col items-center justify-center text-center h-64">
                 <Search className="w-12 h-12 text-muted-foreground" />
                 <p className="text-lg font-semibold mt-4">

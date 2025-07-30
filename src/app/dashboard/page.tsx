@@ -20,9 +20,11 @@ import { FinancialChart } from '@/components/financial-chart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
 import type { FinancialRecord } from '@/lib/definitions';
+import { useUser } from '@/hooks/use-user';
 
 
 export default function DashboardPage() {
+    const { name } = useUser();
     const [summaryData, setSummaryData] = useState({
         revenue: 45231.89,
         expenses: 12873.45,
@@ -49,7 +51,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold">Good Morning, Manager</h1>
+        <h1 className="text-3xl font-bold">Good Morning, {name}</h1>
         <p className="text-muted-foreground">Here is your business overview for today.</p>
       </div>
 
