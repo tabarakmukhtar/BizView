@@ -6,11 +6,15 @@ BizView is a modern, AI-powered business management dashboard built with Next.js
 
 | Dashboard | Client Management |
 | :---: | :---: |
-| ![BizView Dashboard Screenshot](https://placehold.co/600x400.png) | ![BizView Client Management Screenshot](https://placehold.co/600x400.png) |
+| ![BizView Dashboard Screenshot](./screenshots/dashboard.png) | ![BizView Client Management Screenshot](./screenshots/client-management.png) |
 | **Financials Page** | **Appointment Calendar** |
-| ![BizView Financials Screenshot](https://placehold.co/600x400.png) | ![BizView Calendar Screenshot](https://placehold.co/600x400.png) |
+| ![BizView Financials Screenshot](./screenshots/financials.png) | ![BizView Calendar Screenshot](./screenshots/calendar.png) |
 
-*These are placeholder images. To add your own, take screenshots of your application, upload them to your GitHub repository or an image hosting service, and replace the `https://placehold.co/600x400.png` URLs with the URLs to your images.*
+***To add your own screenshots:***
+1.  *Create a new folder named `screenshots` in the root of your project.*
+2.  *Take screenshots of your application and save them in the `screenshots` folder.*
+3.  *Name them `dashboard.png`, `client-management.png`, `financials.png`, and `calendar.png` to match the paths above.*
+4.  *Commit the new folder and files to your GitHub repository.*
 
 ## Core Features
 
