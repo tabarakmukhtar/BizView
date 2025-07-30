@@ -31,6 +31,40 @@ const initialClients: Client[] = [
 
 export default function ClientsPage() {
   const [clients, setClients] = useState(initialClients);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Form state
+  const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [newCompany, setNewCompany] = useState('');
+  const [newStatus, setNewStatus] = useState<'active' | 'inactive' | ''>('');
+
+
+  const handleSaveClient = () => {
+    if (!newName || !newEmail || !newCompany || !newStatus) {
+      alert('Please fill out all fields.');
+      return;
+    }
+
+    const newClient: Client = {
+      id: `client${clients.length + 1}`,
+      name: newName,
+      email: newEmail,
+      company: newCompany,
+      status: newStatus as 'active' | 'inactive',
+      lastContact: new Date().toISOString().split('T')[0], // Today's date
+    };
+
+    setClients([newClient, ...clients]);
+
+    // Reset form and close dialog
+    setNewName('');
+    setNewEmail('');
+    setNewCompany('');
+    setNewStatus('');
+    setIsDialogOpen(false);
+  };
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -44,7 +78,7 @@ export default function ClientsPage() {
             <FileDown className="mr-2 h-4 w-4" />
             Export Clients
           </Button>
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -61,19 +95,19 @@ export default function ClientsPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="name" className="text-right">Name</Label>
-                  <Input id="name" placeholder="e.g. John Doe" className="col-span-3" />
+                  <Input id="name" placeholder="e.g. John Doe" className="col-span-3" value={newName} onChange={(e) => setNewName(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="email" className="text-right">Email</Label>
-                  <Input id="email" type="email" placeholder="john@example.com" className="col-span-3" />
+                  <Input id="email" type="email" placeholder="john@example.com" className="col-span-3" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="company" className="text-right">Company</Label>
-                  <Input id="company" placeholder="e.g. Acme Inc." className="col-span-3" />
+                  <Input id="company" placeholder="e.g. Acme Inc." className="col-span-3" value={newCompany} onChange={(e) => setNewCompany(e.target.value)} />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="status" className="text-right">Status</Label>
-                   <Select>
+                   <Select onValueChange={(value) => setNewStatus(value as 'active' | 'inactive')} value={newStatus}>
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -85,7 +119,7 @@ export default function ClientsPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Save Client</Button>
+                <Button onClick={handleSaveClient}>Save Client</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

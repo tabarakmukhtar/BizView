@@ -69,19 +69,19 @@ export function Header() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="#">
+              <Link href="/dashboard/profile">
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-               <Link href="#">
+               <Link href="/dashboard/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-               <Link href="#">
+               <Link href="/dashboard/support">
                 <LifeBuoy className="mr-2 h-4 w-4" />
                 <span>Support</span>
               </Link>

@@ -21,6 +21,34 @@ const initialAppointments: Appointment[] = [
 export default function CalendarPage() {
   const [appointments, setAppointments] = useState(initialAppointments);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // State for the new appointment form
+  const [newTitle, setNewTitle] = useState('');
+  const [newTime, setNewTime] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+
+  const handleSaveAppointment = () => {
+    if (!newTitle || !newTime) {
+      alert('Please fill out the title and time.');
+      return;
+    }
+
+    const newAppointment: Appointment = {
+      id: `apt${appointments.length + 1}`,
+      title: newTitle,
+      time: newTime,
+      description: newDescription,
+    };
+
+    setAppointments([newAppointment, ...appointments]);
+    
+    // Reset form and close dialog
+    setNewTitle('');
+    setNewTime('');
+    setNewDescription('');
+    setIsDialogOpen(false);
+  };
   
   const today = new Date();
 
@@ -31,7 +59,7 @@ export default function CalendarPage() {
           <h1 className="text-3xl font-bold">Appointment Calendar</h1>
           <p className="text-muted-foreground">Manage your schedule and appointments.</p>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -50,23 +78,23 @@ export default function CalendarPage() {
                 <Label htmlFor="title" className="text-right">
                   Title
                 </Label>
-                <Input id="title" placeholder="e.g. Team Meeting" className="col-span-3" />
+                <Input id="title" placeholder="e.g. Team Meeting" className="col-span-3" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="time" className="text-right">
                   Time
                 </Label>
-                <Input id="time" type="time" className="col-span-3" />
+                <Input id="time" type="time" className="col-span-3" value={newTime} onChange={(e) => setNewTime(e.target.value)} />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="description" className="text-right">
                   Description
                 </Label>
-                <Textarea id="description" placeholder="A brief description of the appointment." className="col-span-3" />
+                <Textarea id="description" placeholder="A brief description of the appointment." className="col-span-3" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Save Appointment</Button>
+              <Button onClick={handleSaveAppointment}>Save Appointment</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -67,6 +67,29 @@ export default function FinancialsPage() {
     setNewAmount('');
     setIsDialogOpen(false);
   };
+  
+  const handleExportData = () => {
+    const headers = ['Date', 'Description', 'Category', 'Type', 'Amount'];
+    const csvRows = [
+      headers.join(','),
+      ...financialData.map(row => 
+        [row.date, `"${row.description}"`, row.category, row.type, row.amount].join(',')
+      )
+    ];
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.href) {
+      URL.revokeObjectURL(link.href);
+    }
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'financial_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
 
   return (
@@ -77,7 +100,7 @@ export default function FinancialsPage() {
           <p className="text-muted-foreground">Review and manage all your financial records.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExportData}>
             <FileDown className="mr-2 h-4 w-4" />
             Export Data
           </Button>
