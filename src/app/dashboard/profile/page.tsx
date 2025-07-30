@@ -9,11 +9,32 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Upload } from 'lucide-react';
+import { useUser } from '@/hooks/use-user';
+
+const profileDetails: Record<string, { email: string, title: string }> = {
+  Manager: {
+    email: 'manager@bizview.com',
+    title: 'Senior Business Manager',
+  },
+  Admin: {
+    email: 'admin@bizview.com',
+    title: 'System Administrator',
+  },
+  Accountant: {
+    email: 'accountant@bizview.com',
+    title: 'Financial Accountant',
+  },
+  Guest: {
+    email: 'guest@bizview.com',
+    title: 'Guest User',
+  }
+}
 
 export default function ProfilePage() {
-  const [name, setName] = useState('The Manager');
-  const [email, setEmail] = useState('manager@bizview.com');
-  const [title, setTitle] = useState('Senior Business Manager');
+  const { name: userName, role } = useUser();
+  const [name, setName] = useState(userName);
+  const [email, setEmail] = useState('');
+  const [title, setTitle] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/100x100');
   const [isClient, setIsClient] = useState(false);
 
@@ -24,6 +45,14 @@ export default function ProfilePage() {
       setAvatarPreview(savedAvatar);
     }
   }, []);
+
+  useEffect(() => {
+    setName(userName);
+    if (role && profileDetails[role]) {
+        setEmail(profileDetails[role].email);
+        setTitle(profileDetails[role].title);
+    }
+  }, [userName, role]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,8 +92,8 @@ export default function ProfilePage() {
         <Card>
           <CardHeader className="items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
-              <AvatarImage src={avatarPreview} alt="@manager" data-ai-hint="person" />
-              <AvatarFallback>M</AvatarFallback>
+              <AvatarImage src={avatarPreview} alt={name} data-ai-hint="person" />
+              <AvatarFallback>{name.charAt(0)}</AvatarFallback>
             </Avatar>
             <CardTitle>{name}</CardTitle>
             <CardDescription>{email}</CardDescription>
