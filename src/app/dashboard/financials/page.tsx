@@ -32,6 +32,42 @@ const initialFinancialData: FinancialRecord[] = [
 
 export default function FinancialsPage() {
   const [financialData, setFinancialData] = useState(initialFinancialData);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // State for the new record form
+  const [newDate, setNewDate] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [newType, setNewType] = useState<'revenue' | 'expense' | ''>('');
+  const [newAmount, setNewAmount] = useState<number | string>('');
+
+  const handleAddRecord = () => {
+    if (!newDate || !newDescription || !newCategory || !newType || !newAmount) {
+      // Basic validation
+      alert('Please fill out all fields.');
+      return;
+    }
+
+    const newRecord: FinancialRecord = {
+      id: `txn${financialData.length + 1}`,
+      date: newDate,
+      description: newDescription,
+      amount: Number(newAmount),
+      type: newType as 'revenue' | 'expense',
+      category: newCategory,
+    };
+
+    setFinancialData([newRecord, ...financialData]);
+    
+    // Reset form and close dialog
+    setNewDate('');
+    setNewDescription('');
+    setNewCategory('');
+    setNewType('');
+    setNewAmount('');
+    setIsDialogOpen(false);
+  };
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -45,7 +81,7 @@ export default function FinancialsPage() {
             <FileDown className="mr-2 h-4 w-4" />
             Export Data
           </Button>
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -62,19 +98,19 @@ export default function FinancialsPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="date" className="text-right">Date</Label>
-                  <Input id="date" type="date" className="col-span-3" />
+                  <Input id="date" type="date" className="col-span-3" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="description" className="text-right">Description</Label>
-                  <Input id="description" placeholder="e.g. Office Supplies" className="col-span-3" />
+                  <Input id="description" placeholder="e.g. Office Supplies" className="col-span-3" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="category" className="text-right">Category</Label>
-                  <Input id="category" placeholder="e.g. Marketing" className="col-span-3" />
+                  <Input id="category" placeholder="e.g. Marketing" className="col-span-3" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="type" className="text-right">Type</Label>
-                  <Select>
+                  <Select onValueChange={(value) => setNewType(value as 'revenue' | 'expense')} value={newType}>
                     <SelectTrigger className="col-span-3">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
@@ -86,11 +122,11 @@ export default function FinancialsPage() {
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="amount" className="text-right">Amount</Label>
-                  <Input id="amount" type="number" placeholder="e.g. 500.00" className="col-span-3" />
+                  <Input id="amount" type="number" placeholder="e.g. 500.00" className="col-span-3" value={newAmount} onChange={(e) => setNewAmount(e.target.value)} />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Save Record</Button>
+                <Button onClick={handleAddRecord}>Save Record</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
