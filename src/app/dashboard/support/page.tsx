@@ -1,7 +1,15 @@
 
+'use client';
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Phone, LifeBuoy } from 'lucide-react';
+import { Mail, Phone, LifeBuoy, Edit, Save } from 'lucide-react';
+import { useUser } from '@/hooks/use-user';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
 
 const faqs = [
   {
@@ -23,6 +31,32 @@ const faqs = [
 ];
 
 export default function SupportPage() {
+  const { role } = useUser();
+  const [isEditing, setIsEditing] = useState(false);
+  const [email, setEmail] = useState('support@bizview.com');
+  const [phone, setPhone] = useState('+1 (800) 555-0199');
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+    const savedEmail = localStorage.getItem('support-email');
+    const savedPhone = localStorage.getItem('support-phone');
+    if (savedEmail) setEmail(savedEmail);
+    if (savedPhone) setPhone(savedPhone);
+  }, []);
+
+  const handleSave = () => {
+    localStorage.setItem('support-email', email);
+    localStorage.setItem('support-phone', phone);
+    setIsEditing(false);
+    toast({
+      title: 'Contact Info Saved',
+      description: 'The support contact details have been updated.',
+    });
+  }
+
+  const canEdit = isClient && (role === 'Manager' || role === 'Admin');
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -53,29 +87,58 @@ export default function SupportPage() {
         </div>
         <div className="md:col-span-1">
           <Card>
-            <CardHeader>
-              <CardTitle>Contact Us</CardTitle>
-              <CardDescription>Can't find the answer? Reach out to us.</CardDescription>
+            <CardHeader className='flex-row items-center justify-between'>
+              <div>
+                <CardTitle>Contact Us</CardTitle>
+                <CardDescription>Can't find the answer? Reach out to us.</CardDescription>
+              </div>
+              {canEdit && (
+                <div>
+                  {isEditing ? (
+                    <Button onClick={handleSave} size="sm">
+                      <Save className="mr-2 h-4 w-4" />
+                      Save
+                    </Button>
+                  ) : (
+                    <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+                       <Edit className="mr-2 h-4 w-4" />
+                      Edit
+                    </Button>
+                  )}
+                </div>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start gap-4">
                 <Mail className="w-5 h-5 mt-1 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Email</p>
-                  <a href="mailto:support@bizview.com" className="text-sm text-primary hover:underline">
-                    support@bizview.com
-                  </a>
-                  <p className="text-xs text-muted-foreground">Best for non-urgent inquiries.</p>
+                <div className="w-full">
+                  <Label htmlFor="email-contact" className="font-semibold">Email</Label>
+                  {isEditing ? (
+                    <Input id="email-contact" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" />
+                  ) : (
+                     <>
+                      <a href={`mailto:${email}`} className="block text-sm text-primary hover:underline">
+                        {email}
+                      </a>
+                      <p className="text-xs text-muted-foreground">Best for non-urgent inquiries.</p>
+                    </>
+                  )}
                 </div>
               </div>
                <div className="flex items-start gap-4">
                 <Phone className="w-5 h-5 mt-1 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Phone</p>
-                  <a href="tel:+1-800-555-0199" className="text-sm text-primary hover:underline">
-                    +1 (800) 555-0199
-                  </a>
-                   <p className="text-xs text-muted-foreground">Mon-Fri, 9am - 5pm EST.</p>
+                <div className="w-full">
+                  <Label htmlFor="phone-contact" className="font-semibold">Phone</Label>
+                   {isEditing ? (
+                    <Input id="phone-contact" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1" />
+                  ) : (
+                    <>
+                      <a href={`tel:${phone}`} className="block text-sm text-primary hover:underline">
+                        {phone}
+                      </a>
+                      <p className="text-xs text-muted-foreground">Mon-Fri, 9am - 5pm EST.</p>
+                    </>
+                  )}
                 </div>
               </div>
             </CardContent>

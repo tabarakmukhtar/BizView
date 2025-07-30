@@ -41,11 +41,18 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setIsClient(true);
-    const savedAvatar = localStorage.getItem('user-avatar');
-    if (savedAvatar) {
-      setAvatarPreview(savedAvatar);
-    }
   }, []);
+
+  useEffect(() => {
+    if (role && role !== 'Guest') {
+      const savedAvatar = localStorage.getItem(`user-avatar-${role}`);
+      if (savedAvatar) {
+        setAvatarPreview(savedAvatar);
+      } else {
+        setAvatarPreview('https://placehold.co/100x100');
+      }
+    }
+  }, [role]);
 
   useEffect(() => {
     setName(userName);
@@ -58,14 +65,14 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveChanges = () => {
-    // In a real application, you would make an API call here to save the changes.
-    localStorage.setItem('user-avatar', avatarPreview);
-    window.dispatchEvent(new Event('storage')); // Manually trigger storage event for the header to update
-
-    toast({
-      title: 'Profile Updated',
-      description: 'Your changes have been saved successfully.',
-    });
+    if (role && role !== 'Guest') {
+      localStorage.setItem(`user-avatar-${role}`, avatarPreview);
+      window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-avatar-${role}` }}));
+      toast({
+        title: 'Profile Updated',
+        description: 'Your changes have been saved successfully.',
+      });
+    }
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -158,15 +165,15 @@ export default function ProfilePage() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">Job Title</Label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} disabled/>
             </div>
             <div className="space-y-2">
                <Label>Profile Picture</Label>

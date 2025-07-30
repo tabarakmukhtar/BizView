@@ -44,20 +44,33 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const updateAvatar = () => {
-      const savedAvatar = localStorage.getItem('user-avatar');
-      if (savedAvatar) {
-        setAvatarUrl(savedAvatar);
+    const updateAvatar = (event?: StorageEvent | CustomEvent) => {
+      if (role && role !== 'Guest') {
+        const key = `user-avatar-${role}`;
+         // Check if the event is for the correct key or if there's no event (initial load)
+        if (!event || (event instanceof CustomEvent && event.detail.key === key) || (event instanceof StorageEvent && event.key === key)) {
+          const savedAvatar = localStorage.getItem(key);
+          setAvatarUrl(savedAvatar || 'https://placehold.co/40x40');
+        }
+      } else {
+        setAvatarUrl('https://placehold.co/40x40');
       }
     };
 
     updateAvatar();
 
     window.addEventListener('storage', updateAvatar);
+    
+    // Listen for custom event from profile page
+    const customUpdateListener = (event: Event) => updateAvatar(event as CustomEvent);
+    window.addEventListener('storage', customUpdateListener);
+
+
     return () => {
       window.removeEventListener('storage', updateAvatar);
+      window.removeEventListener('storage', customUpdateListener);
     };
-  }, []);
+  }, [role]);
 
   const handleLogout = () => {
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
