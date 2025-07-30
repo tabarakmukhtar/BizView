@@ -23,7 +23,7 @@ const getCookie = (name: string): string | undefined => {
   return undefined;
 };
 
-const names: Record<UserRole, string> = {
+const defaultNames: Record<UserRole, string> = {
     Manager: "The Manager",
     Admin: "The Admin",
     Accountant: "The Accountant",
@@ -43,8 +43,9 @@ export function useUser(): User {
         const authToken = getCookie('auth_token');
 
         if (role && authToken === 'true') {
+            const savedName = localStorage.getItem(`user-name-${role}`);
             setUser({
-                name: names[role] || "User",
+                name: savedName || defaultNames[role] || "User",
                 role: role,
                 isAuthenticated: true,
             });
@@ -59,8 +60,15 @@ export function useUser(): User {
 
     checkUser();
 
-    // Re-check when user navigates or focus changes, which can happen after login.
-    window.addEventListener('focus', checkUser);
+    const handleStorageChange = (event: StorageEvent | CustomEvent) => {
+      const key = event instanceof CustomEvent ? event.detail.key : event.key;
+      const role = getCookie('user_role') as UserRole | undefined;
+      if (key === `user-name-${role}`) {
+        checkUser();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
     
     // A simple way to detect navigation changes for SPAs
     const originalPushState = history.pushState;
@@ -77,13 +85,10 @@ export function useUser(): User {
     
     window.addEventListener('popstate', checkUser);
 
-    // This listens for cookie changes, but it's not a standard event.
-    // A more robust solution might involve a global state management library.
-    // For this prototype, we'll poll for changes on an interval as a fallback.
     const interval = setInterval(checkUser, 1000);
 
     return () => {
-        window.removeEventListener('focus', checkUser);
+        window.removeEventListener('storage', handleStorageChange);
         window.removeEventListener('popstate', checkUser);
         history.pushState = originalPushState;
         history.replaceState = originalReplaceState;

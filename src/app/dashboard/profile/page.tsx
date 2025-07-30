@@ -34,8 +34,8 @@ const profileDetails: Record<string, { email: string, title: string }> = {
 }
 
 export default function ProfilePage() {
-  const { name: userName, role } = useUser();
-  const [name, setName] = useState(userName);
+  const { name: initialUserName, role } = useUser();
+  const [name, setName] = useState(initialUserName);
   const [email, setEmail] = useState('');
   const [title, setTitle] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/100x100');
@@ -55,23 +55,29 @@ export default function ProfilePage() {
       } else {
         setAvatarPreview('https://placehold.co/100x100');
       }
-    }
-  }, [role, isClient]);
 
-  useEffect(() => {
-    setName(userName);
-    if (role && profileDetails[role]) {
-        setEmail(profileDetails[role].email);
-        setTitle(profileDetails[role].title);
+      const savedName = localStorage.getItem(`user-name-${role}`);
+      setName(savedName || initialUserName);
+      
+      const savedEmail = localStorage.getItem(`user-email-${role}`);
+      setEmail(savedEmail || profileDetails[role]?.email || '');
+
+      const savedTitle = localStorage.getItem(`user-title-${role}`);
+      setTitle(savedTitle || profileDetails[role]?.title || '');
+
     }
-  }, [userName, role]);
+  }, [role, isClient, initialUserName]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveChanges = () => {
     if (role && role !== 'Guest') {
       localStorage.setItem(`user-avatar-${role}`, avatarPreview);
+      localStorage.setItem(`user-name-${role}`, name);
+      localStorage.setItem(`user-email-${role}`, email);
+      localStorage.setItem(`user-title-${role}`, title);
       window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-avatar-${role}` }}));
+      window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-name-${role}` }}));
       toast({
         title: 'Profile Updated',
         description: 'Your changes have been saved successfully.',
@@ -165,21 +171,21 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
             <CardDescription>
-                {canEdit ? "Update your personal information here." : "Only Admins can change profile pictures."}
+                {canEdit ? "Update your personal information here." : "Only Admins can change profile information."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} disabled />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} disabled={!canEdit} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled/>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={!canEdit}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">Job Title</Label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} disabled/>
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} disabled={!canEdit}/>
             </div>
             <div className="space-y-2">
                <Label>Profile Picture</Label>
