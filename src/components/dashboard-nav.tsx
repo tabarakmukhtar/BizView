@@ -54,15 +54,16 @@ export function DashboardNav() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
                 <SidebarMenuButton
+                  asChild
                   isActive={pathname === item.href}
                   tooltip={item.label}
                 >
-                  <item.icon />
-                  <span>{item.label}</span>
+                  <Link href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </Link>
                 </SidebarMenuButton>
-              </Link>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -70,20 +71,20 @@ export function DashboardNav() {
       <div className="mt-auto">
         <SidebarMenu>
           <SidebarMenuItem>
-             <Link href="#" passHref>
-              <SidebarMenuButton tooltip="Settings">
-                <Settings />
-                <span>Settings</span>
+              <SidebarMenuButton asChild tooltip="Settings">
+                <Link href="#">
+                  <Settings />
+                  <span>Settings</span>
+                </Link>
               </SidebarMenuButton>
-            </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Link href="#" passHref>
-              <SidebarMenuButton tooltip="Help & Support">
+            <SidebarMenuButton asChild tooltip="Help & Support">
+              <Link href="#">
                 <HelpCircle />
                 <span>Help & Support</span>
-              </SidebarMenuButton>
-            </Link>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </div>
