@@ -65,6 +65,29 @@ export default function ClientsPage() {
     setIsDialogOpen(false);
   };
 
+  const handleExportData = () => {
+    const headers = ['ID', 'Name', 'Email', 'Company', 'Status', 'Last Contact'];
+    const csvRows = [
+      headers.join(','),
+      ...clients.map(row => 
+        [row.id, `"${row.name}"`, row.email, `"${row.company}"`, row.status, row.lastContact].join(',')
+      )
+    ];
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.href) {
+      URL.revokeObjectURL(link.href);
+    }
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'clients_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -74,7 +97,7 @@ export default function ClientsPage() {
           <p className="text-muted-foreground">View, add, and manage your client list.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExportData}>
             <FileDown className="mr-2 h-4 w-4" />
             Export Clients
           </Button>
@@ -156,7 +179,7 @@ export default function ClientsPage() {
                   </TableCell>
                   <TableCell>{client.company}</TableCell>
                   <TableCell>
-                    <Badge variant={client.status === 'active' ? 'default' : 'secondary'} className={`capitalize ${client.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                    <Badge variant={client.status === 'active' ? 'default' : 'secondary'} className="capitalize">
                       {client.status}
                     </Badge>
                   </TableCell>

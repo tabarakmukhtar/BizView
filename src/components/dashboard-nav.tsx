@@ -46,6 +46,19 @@ const menuItems = [
   },
 ];
 
+const secondaryMenuItems = [
+    {
+        href: '/dashboard/settings',
+        label: 'Settings',
+        icon: Settings,
+    },
+    {
+        href: '/dashboard/support',
+        label: 'Help & Support',
+        icon: HelpCircle,
+    }
+]
+
 export function DashboardNav() {
   const pathname = usePathname();
 
@@ -55,13 +68,16 @@ export function DashboardNav() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} asChild>
+              <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton
+                  asChild
                   isActive={pathname === item.href}
                   tooltip={item.label}
                 >
-                  <item.icon />
-                  <span>{item.label}</span>
+                  <a>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </a>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
@@ -70,22 +86,22 @@ export function DashboardNav() {
       </div>
       <div className="mt-auto">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <Link href="#" asChild>
-              <SidebarMenuButton tooltip="Settings">
-                <Settings />
-                <span>Settings</span>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <Link href="#" asChild>
-              <SidebarMenuButton tooltip="Help & Support">
-                <HelpCircle />
-                <span>Help & Support</span>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
+          {secondaryMenuItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <Link href={item.href} legacyBehavior passHref>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href}
+                  tooltip={item.label}
+                >
+                  <a>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </a>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </div>
     </nav>
