@@ -11,7 +11,7 @@ export type FinancialRecord = {
   id: string;
   date: string;
   description: string;
-  amount: number;
+  amount: number; // This will always be in the base currency (e.g., USD) in the raw data
   type: 'revenue' | 'expense';
   category: string;
 };

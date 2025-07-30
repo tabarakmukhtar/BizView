@@ -10,16 +10,8 @@ import {
 } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from "@/components/ui/chart";
 import { useData } from '@/hooks/use-data';
+import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts";
-
-const chartData = [
-  { month: 'Jan', revenue: 1860, expenses: 800 },
-  { month: 'Feb', revenue: 3050, expenses: 1200 },
-  { month: 'Mar', revenue: 2370, expenses: 980 },
-  { month: 'Apr', revenue: 730, expenses: 600 },
-  { month: 'May', revenue: 2090, expenses: 1100 },
-  { month: 'Jun', revenue: 2140, expenses: 1300 },
-];
 
 const chartConfig = {
   revenue: {
@@ -34,12 +26,51 @@ const chartConfig = {
 
 
 export function FinancialChart() {
-    const { currency } = useData();
+    const { currency, financialData } = useData();
+
+    const chartData = useMemo(() => {
+        // In a real app, you'd aggregate data by month. For this demo, we'll create a simplified aggregation.
+        const monthlyData: { [key: string]: { month: string, revenue: number, expenses: number }} = {};
+
+        financialData.forEach(record => {
+            const month = new Date(record.date).toLocaleString('default', { month: 'short' });
+            if (!monthlyData[month]) {
+                monthlyData[month] = { month, revenue: 0, expenses: 0 };
+            }
+            if (record.type === 'revenue') {
+                monthlyData[month].revenue += record.amount;
+            } else {
+                monthlyData[month].expenses += record.amount;
+            }
+        });
+        
+        // Example static data structure if financialData is sparse
+        const exampleMonths = [
+          { month: 'Jan', revenue: 0, expenses: 0 },
+          { month: 'Feb', revenue: 0, expenses: 0 },
+          { month: 'Mar', revenue: 0, expenses: 0 },
+          { month: 'Apr', revenue: 0, expenses: 0 },
+          { month: 'May', revenue: 0, expenses: 0 },
+          { month: 'Jun', revenue: 0, expenses: 0 },
+        ];
+
+        const aggregatedData = exampleMonths.map(m => monthlyData[m.month] || m);
+        return aggregatedData;
+
+    }, [financialData]);
+
 
     const currencySymbols = {
         USD: '$',
         EUR: '€',
         INR: '₹',
+    }
+
+    const formatYAxis = (value: number) => {
+        if (value >= 1000) {
+            return `${currencySymbols[currency]}${Math.round(value / 1000)}k`;
+        }
+        return `${currencySymbols[currency]}${value}`;
     }
 
     return (
@@ -59,15 +90,21 @@ export function FinancialChart() {
                       tickMargin={10}
                       axisLine={false}
                     />
-                     <YAxis tickLine={false} axisLine={false} tickMargin={10} tickFormatter={(value) => `${currencySymbols[currency]}${value/1000}k`} />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(value, name, props) => (
-                        <div className="flex flex-col">
-                            <span>{props.payload.month}</span>
-                            <span style={{ color: props.color }}>
-                                {name}: {value.toLocaleString('en-US', { style: 'currency', currency: currency })}
-                            </span>
-                        </div>
-                    )} />} />
+                     <YAxis tickLine={false} axisLine={false} tickMargin={10} tickFormatter={formatYAxis} />
+                    <ChartTooltip 
+                        cursor={false} 
+                        content={<ChartTooltipContent 
+                                    formatter={(value, name) => (
+                                        <div className='flex flex-col'>
+                                            <span className="text-muted-foreground">{name}</span>
+                                            <span className='font-bold' style={{ color: name === 'Revenue' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' }}>
+                                                {value.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0 })}
+                                            </span>
+                                        </div>
+                                    )} 
+                                    labelClassName="font-bold"
+                                />} 
+                    />
                     <Bar dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="expenses" fill="var(--color-expenses)" radius={[4, 4, 0, 0]} />
                 </BarChart>

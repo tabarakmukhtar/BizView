@@ -2,9 +2,9 @@
 'use client';
 
 import type { Client, FinancialRecord, Appointment } from '@/lib/definitions';
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode, useMemo } from 'react';
 
-// Initial data (can be replaced with API calls)
+// Initial data (can be replaced with API calls) - ALL AMOUNTS ARE IN USD (BASE CURRENCY)
 const initialClients: Client[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice.j@example.com', company: 'Innovate LLC', status: 'active', lastContact: '2024-06-20' },
   { id: '2', name: 'Bob Smith', email: 'bob.s@example.com', company: 'Solutions Inc.', status: 'active', lastContact: '2024-06-18' },
@@ -30,6 +30,12 @@ const initialAppointments: Appointment[] = [
 ];
 
 type Currency = 'USD' | 'EUR' | 'INR';
+
+const exchangeRates: Record<Currency, number> = {
+  USD: 1,
+  EUR: 0.93, // 1 USD = 0.93 EUR
+  INR: 83.45, // 1 USD = 83.45 INR
+};
 
 interface DataContextType {
   clients: Client[];
@@ -59,6 +65,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setClientsState(storedClients ? JSON.parse(storedClients) : initialClients);
 
       const storedFinancials = localStorage.getItem('bizview-financials');
+      // All data in localStorage is stored in the base currency (USD)
       setFinancialDataState(storedFinancials ? JSON.parse(storedFinancials) : initialFinancialData);
 
       const storedAppointments = localStorage.getItem('bizview-appointments');
@@ -86,6 +93,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const setFinancialData = (newFinancialData: FinancialRecord[]) => {
     setFinancialDataState(newFinancialData);
+    // Always store in USD
     localStorage.setItem('bizview-financials', JSON.stringify(newFinancialData));
   };
 
@@ -99,12 +107,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('bizview-currency', newCurrency);
   }
 
+  // Memoize the converted financial data to avoid recalculating on every render
+  const convertedFinancialData = useMemo(() => {
+    const rate = exchangeRates[currency];
+    return financialData.map(record => ({
+      ...record,
+      amount: record.amount * rate,
+    }));
+  }, [financialData, currency]);
+
   return (
     <DataContext.Provider
       value={{
         clients,
         setClients,
-        financialData,
+        financialData: convertedFinancialData,
         setFinancialData,
         appointments,
         setAppointments,
