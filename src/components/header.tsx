@@ -17,6 +17,24 @@ import { Search, Bell, LifeBuoy, LogOut, User, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+
+const notifications = [
+  {
+    title: 'New client signed!',
+    description: 'Acme Inc. has joined your portfolio.',
+  },
+  {
+    title: 'Invoice Paid',
+    description: 'Your invoice #INV-1234 has been paid.',
+  },
+  {
+    title: 'Project Update',
+    description: 'A new comment was added to the website redesign project.',
+  },
+];
+
 
 export function Header() {
   const router = useRouter();
@@ -63,10 +81,39 @@ export function Header() {
         </form>
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Toggle notifications</span>
-        </Button>
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                    <Bell className="h-5 w-5" />
+                    <span className="sr-only">Toggle notifications</span>
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-80">
+                <Card className='border-0 shadow-none'>
+                    <CardHeader className='p-2'>
+                        <CardTitle className='text-base'>Notifications</CardTitle>
+                    </CardHeader>
+                    <CardContent className='p-2'>
+                        <div className="flex flex-col gap-4">
+                            {notifications.map((notification, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                    <div className="mt-1 flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-medium leading-none">
+                                            {notification.title}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {notification.description}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            </PopoverContent>
+        </Popover>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
