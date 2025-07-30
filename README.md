@@ -1,9 +1,16 @@
 # BizView - AI-Powered Business Management Dashboard
 
-BizView is a modern, AI-powered business management dashboard built with Next.js, ShadCN, Tailwind CSS, and Genkit. It provides a comprehensive suite of tools for managing clients, financials, and appointments, complete with role-based access control to ensure data security.
+BizView is a modern, AI-powered business management dashboard built with Next.js, ShadCN, Tailwind CSS, and Genkit. It provides a comprehensive suite of tools for managing clients, financials, and appointments, with role-based access control to ensure data security.
 
-![BizView Dashboard Screenshot](https://placehold.co/800x400.png)
-*This is a placeholder image. Replace with a screenshot of your application.*
+## Screenshots
+
+| Dashboard | Client Management |
+| :---: | :---: |
+| ![BizView Dashboard Screenshot](https://placehold.co/600x400.png) | ![BizView Client Management Screenshot](https://placehold.co/600x400.png) |
+| **Financials Page** | **Appointment Calendar** |
+| ![BizView Financials Screenshot](https://placehold.co/600x400.png) | ![BizView Calendar Screenshot](https://placehold.co/600x400.png) |
+
+*These are placeholder images. Replace `https://placehold.co/600x400.png` with the URLs to your own screenshots.*
 
 ## Core Features
 
