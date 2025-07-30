@@ -55,7 +55,7 @@ export default function SupportPage() {
     });
   }
 
-  const canEdit = isClient && (role === 'Manager' || role === 'Admin');
+  const canEdit = isClient && role === 'Admin';
 
   return (
     <div className="flex flex-col gap-8">

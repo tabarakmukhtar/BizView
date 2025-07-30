@@ -14,14 +14,24 @@ export function middleware(request: NextRequest) {
     if (isAuthenticated) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-  } else if (!isAuthenticated && pathname.startsWith('/dashboard')) {
+    return NextResponse.next();
+  }
+  
+  if (!isAuthenticated && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url));
-  } else if (isAuthenticated && pathname.startsWith('/dashboard')) {
+  }
+  
+  if (isAuthenticated && pathname.startsWith('/dashboard')) {
     // Role-based access control for settings page
     if (pathname.startsWith('/dashboard/settings')) {
       if (userRole !== 'Manager' && userRole !== 'Admin') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
+    }
+     // Role-based access control for support page editing (conceptually, middleware protects routes)
+    if (pathname.startsWith('/dashboard/support')) {
+      // While editing is handled on the client, you could enforce that only Admins see the page
+      // if it were a purely administrative function. For now, client-side logic is sufficient.
     }
   }
 
