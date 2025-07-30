@@ -13,12 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileDown, PlusCircle } from "lucide-react";
+import { FileDown, PlusCircle, PackageOpen } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const initialFinancialData: FinancialRecord[] = [
   { id: 'txn1', date: '2024-06-15', description: 'Website Redesign Project', amount: 7500, type: 'revenue', category: 'Web Development' },
@@ -43,8 +44,11 @@ export default function FinancialsPage() {
 
   const handleAddRecord = () => {
     if (!newDate || !newDescription || !newCategory || !newType || !newAmount) {
-      // Basic validation
-      alert('Please fill out all fields.');
+      toast({
+        title: "Error",
+        description: "Please fill out all fields.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -57,7 +61,7 @@ export default function FinancialsPage() {
       category: newCategory,
     };
 
-    setFinancialData([newRecord, ...financialData]);
+    setFinancialData([newRecord, ...financialData].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     
     // Reset form and close dialog
     setNewDate('');
@@ -66,14 +70,18 @@ export default function FinancialsPage() {
     setNewType('');
     setNewAmount('');
     setIsDialogOpen(false);
+     toast({
+        title: "Record Added",
+        description: "The new financial record has been saved.",
+    });
   };
   
   const handleExportData = () => {
-    const headers = ['Date', 'Description', 'Category', 'Type', 'Amount'];
+    const headers = ['ID', 'Date', 'Description', 'Amount', 'Type', 'Category'];
     const csvRows = [
       headers.join(','),
       ...financialData.map(row => 
-        [row.date, `"${row.description}"`, row.category, row.type, row.amount].join(',')
+        [row.id, row.date, `"${row.description}"`, row.amount, row.type, row.category].join(',')
       )
     ];
 
@@ -89,6 +97,10 @@ export default function FinancialsPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast({
+        title: "Export Successful",
+        description: "Your financial data has been exported as a CSV file.",
+    });
   };
 
 
@@ -100,7 +112,7 @@ export default function FinancialsPage() {
           <p className="text-muted-foreground">Review and manage all your financial records.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportData}>
+          <Button variant="outline" onClick={handleExportData} disabled={financialData.length === 0}>
             <FileDown className="mr-2 h-4 w-4" />
             Export Data
           </Button>
@@ -157,39 +169,47 @@ export default function FinancialsPage() {
       </div>
       <Card>
         <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {financialData.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell>{record.date}</TableCell>
-                  <TableCell className="font-medium">{record.description}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{record.category}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={record.type === 'revenue' ? 'default' : 'destructive'} className="capitalize">
-                      {record.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className={`text-right font-mono ${record.type === 'revenue' ? 'text-green-600' : 'text-red-600'}`}>
-                    {record.amount.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
-                    })}
-                  </TableCell>
+          {financialData.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {financialData.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+                    <TableCell className="font-medium">{record.description}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{record.category}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={record.type === 'revenue' ? 'default' : 'destructive'} className="capitalize">
+                        {record.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className={`text-right font-mono ${record.type === 'revenue' ? 'text-green-600' : 'text-red-600'}`}>
+                      {record.amount.toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                      })}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center h-64 border-2 border-dashed rounded-lg">
+                <PackageOpen className="w-12 h-12 text-muted-foreground" />
+                <p className="text-lg font-semibold mt-4">No financial records found</p>
+                <p className="text-muted-foreground text-sm">Add a new record to get started.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileDown, MoreHorizontal, PlusCircle, Trash2, Edit, Eye } from "lucide-react";
+import { FileDown, MoreHorizontal, PlusCircle, Trash2, Edit, Eye, UserX } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,6 +154,10 @@ export default function ClientsPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+     toast({
+        title: "Export Successful",
+        description: "Your client data has been exported as a CSV file.",
+    });
   };
 
 
@@ -165,7 +169,7 @@ export default function ClientsPage() {
           <p className="text-muted-foreground">View, add, and manage your client list.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportData}>
+          <Button variant="outline" onClick={handleExportData} disabled={clients.length === 0}>
             <FileDown className="mr-2 h-4 w-4" />
             Export Clients
           </Button>
@@ -218,88 +222,96 @@ export default function ClientsPage() {
       </div>
       <Card>
         <CardContent className="pt-6">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Contact</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {clients.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={`https://placehold.co/40x40.png?text=${client.name.charAt(0)}`} alt={client.name} data-ai-hint="person"/>
-                        <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p>{client.name}</p>
-                        <p className="text-sm text-muted-foreground">{client.email}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{client.company}</TableCell>
-                  <TableCell>
-                    <Badge variant={client.status === 'active' ? 'default' : 'secondary'} className="capitalize">
-                      {client.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{client.lastContact}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Client actions</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleViewClick(client)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEditClick(client)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the client from your records.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteClient(client.id)}>
-                                Continue
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          {clients.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Last Contact</TableHead>
+                  <TableHead>
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {clients.map((client) => (
+                  <TableRow key={client.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage src={`https://placehold.co/40x40.png?text=${client.name.charAt(0)}`} alt={client.name} data-ai-hint="person"/>
+                          <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p>{client.name}</p>
+                          <p className="text-sm text-muted-foreground">{client.email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{client.company}</TableCell>
+                    <TableCell>
+                      <Badge variant={client.status === 'active' ? 'default' : 'secondary'} className="capitalize">
+                        {client.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{new Date(client.lastContact).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Client actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleViewClick(client)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditClick(client)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete the client from your records.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteClient(client.id)}>
+                                  Continue
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center h-64 border-2 border-dashed rounded-lg">
+                <UserX className="w-12 h-12 text-muted-foreground" />
+                <p className="text-lg font-semibold mt-4">No clients found</p>
+                <p className="text-muted-foreground text-sm">Add a new client to get started.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -356,7 +368,7 @@ export default function ClientsPage() {
                     <p><strong>Email:</strong> {selectedClient.email}</p>
                     <p><strong>Company:</strong> {selectedClient.company}</p>
                     <p><strong>Status:</strong> <Badge variant={selectedClient.status === 'active' ? 'default' : 'secondary'} className="capitalize">{selectedClient.status}</Badge></p>
-                    <p><strong>Last Contact:</strong> {selectedClient.lastContact}</p>
+                    <p><strong>Last Contact:</strong> {new Date(selectedClient.lastContact).toLocaleDateString()}</p>
                 </div>
             )}
             <DialogFooter>
