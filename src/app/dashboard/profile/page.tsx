@@ -1,26 +1,46 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, type ChangeEvent } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
+import { Upload } from 'lucide-react';
 
 export default function ProfilePage() {
   const [name, setName] = useState('The Manager');
   const [email, setEmail] = useState('manager@bizview.com');
   const [title, setTitle] = useState('Senior Business Manager');
+  const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/100x100');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSaveChanges = () => {
-    // In a real application, you would make an API call here to save the changes.
+    // In a real application, you would make an API call here to save the changes,
+    // including uploading the new avatar image file if one was selected.
     console.log('Saving changes:', { name, email, title });
     toast({
       title: 'Profile Updated',
       description: 'Your changes have been saved successfully.',
     });
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -29,7 +49,7 @@ export default function ProfilePage() {
         <Card>
           <CardHeader className="items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
-              <AvatarImage src="https://placehold.co/100x100" alt="@manager" data-ai-hint="person" />
+              <AvatarImage src={avatarPreview} alt="@manager" data-ai-hint="person" />
               <AvatarFallback>M</AvatarFallback>
             </Avatar>
             <CardTitle>{name}</CardTitle>
@@ -58,6 +78,24 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Label htmlFor="title">Job Title</Label>
               <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+               <Label>Profile Picture</Label>
+                <div className="flex items-center gap-4">
+                    <Input
+                        id="picture"
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleImageChange}
+                        className="hidden"
+                        accept="image/*"
+                    />
+                    <Button variant="outline" onClick={handleUploadClick}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Picture
+                    </Button>
+                    <p className="text-sm text-muted-foreground">PNG, JPG, GIF up to 10MB.</p>
+                </div>
             </div>
             <Button onClick={handleSaveChanges}>Save Changes</Button>
           </CardContent>
