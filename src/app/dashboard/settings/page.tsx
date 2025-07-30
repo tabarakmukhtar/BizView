@@ -1,13 +1,34 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
+  const { theme, setTheme } = useTheme();
+  const [isMounted, setIsMounted] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleSaveChanges = () => {
     toast({
@@ -15,6 +36,10 @@ export default function SettingsPage() {
       description: 'Your new settings have been applied.',
     });
   };
+
+  if (!isMounted) {
+    return null; // or a loading skeleton
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -37,7 +62,11 @@ export default function SettingsPage() {
                   Enable a darker color scheme for the interface.
                 </span>
               </Label>
-              <Switch id="dark-mode" />
+              <Switch 
+                id="dark-mode" 
+                checked={theme === 'dark'}
+                onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              />
             </div>
           </CardContent>
         </Card>
@@ -55,7 +84,7 @@ export default function SettingsPage() {
                   Receive important updates via email.
                 </span>
               </Label>
-              <Switch id="email-notifications" defaultChecked />
+              <Switch id="email-notifications" checked={emailNotifications} onCheckedChange={setEmailNotifications} />
             </div>
             <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
               <Label htmlFor="push-notifications" className="flex flex-col space-y-1">
@@ -64,7 +93,7 @@ export default function SettingsPage() {
                   Get real-time alerts on your device.
                 </span>
               </Label>
-              <Switch id="push-notifications" />
+              <Switch id="push-notifications" checked={pushNotifications} onCheckedChange={setPushNotifications} />
             </div>
           </CardContent>
         </Card>
@@ -84,7 +113,34 @@ export default function SettingsPage() {
                     <p className="text-sm font-medium text-destructive">Delete Account</p>
                     <p className="text-sm text-muted-foreground">Permanently delete your account and all of your data.</p>
                 </div>
-                <Button variant="destructive">Delete</Button>
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete your
+                            account and remove your data from our servers.
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() =>
+                            toast({
+                                title: 'Account Deletion Requested',
+                                description: 'Your account is scheduled for deletion.',
+                                variant: 'destructive',
+                            })
+                            }
+                        >
+                            Continue
+                        </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
           </CardContent>
         </Card>
