@@ -163,7 +163,7 @@ export function Header() {
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
-             {(role === 'Manager' || role === 'Admin') && (
+             {role === 'Admin' && (
               <DropdownMenuItem asChild>
                  <Link href="/dashboard/settings">
                   <Settings className="mr-2 h-4 w-4" />

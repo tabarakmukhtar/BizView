@@ -58,7 +58,7 @@ const secondaryMenuItems = [
         href: '/dashboard/settings',
         label: 'Settings',
         icon: Settings,
-        roles: ['Manager', 'Admin'],
+        roles: ['Admin'],
     },
     {
         href: '/dashboard/support',

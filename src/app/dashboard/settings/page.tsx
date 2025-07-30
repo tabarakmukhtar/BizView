@@ -31,6 +31,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useUser } from '@/hooks/use-user';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -41,10 +42,13 @@ export default function SettingsPage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { role } = useUser();
   
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const canEdit = isClient && role === 'Admin';
 
   const handleSaveChanges = () => {
     // In a real application, you would save these settings to a backend.
@@ -122,7 +126,7 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your account and application preferences.</p>
+        <p className="text-muted-foreground">Manage your account and application preferences. Only Admins can modify settings.</p>
       </div>
 
       <div className="grid gap-8">
@@ -143,6 +147,7 @@ export default function SettingsPage() {
                 id="dark-mode" 
                 checked={theme === 'dark'}
                 onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                disabled={!canEdit}
               />
             </div>
           </CardContent>
@@ -161,7 +166,7 @@ export default function SettingsPage() {
                   Receive important updates via email.
                 </span>
               </Label>
-              <Switch id="email-notifications" checked={emailNotifications} onCheckedChange={setEmailNotifications} />
+              <Switch id="email-notifications" checked={emailNotifications} onCheckedChange={setEmailNotifications} disabled={!canEdit} />
             </div>
             <div className="flex items-center justify-between space-x-2 rounded-lg border p-4">
               <Label htmlFor="push-notifications" className="flex flex-col space-y-1">
@@ -170,7 +175,7 @@ export default function SettingsPage() {
                   Get real-time alerts on your device.
                 </span>
               </Label>
-              <Switch id="push-notifications" checked={pushNotifications} onCheckedChange={setPushNotifications} />
+              <Switch id="push-notifications" checked={pushNotifications} onCheckedChange={setPushNotifications} disabled={!canEdit} />
             </div>
           </CardContent>
         </Card>
@@ -236,7 +241,7 @@ export default function SettingsPage() {
                 </div>
                  <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive">Delete</Button>
+                      <Button variant="destructive" disabled={!canEdit}>Delete</Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
@@ -267,7 +272,7 @@ export default function SettingsPage() {
         </Card>
         
         <div className="flex justify-end">
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
+            <Button onClick={handleSaveChanges} disabled={!canEdit}>Save Changes</Button>
         </div>
       </div>
     </div>

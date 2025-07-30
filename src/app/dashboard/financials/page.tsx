@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const initialFinancialData: FinancialRecord[] = [
   { id: 'txn1', date: '2024-06-15', description: 'Website Redesign Project', amount: 7500, type: 'revenue', category: 'Web Development' },
@@ -49,7 +50,7 @@ export default function FinancialsPage() {
   const [newType, setNewType] = useState<'revenue' | 'expense' | ''>('');
   const [newAmount, setNewAmount] = useState<number | string>('');
 
-  const canAddRecord = isClient && (role === 'Manager' || role === 'Admin');
+  const canAddRecord = isClient && role === 'Admin';
 
   const handleAddRecord = () => {
     if (!newDate || !newDescription || !newCategory || !newType || !newAmount) {
@@ -121,7 +122,7 @@ export default function FinancialsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Financial Summaries</h1>
-          <p className="text-muted-foreground">Review and manage all your financial records.</p>
+          <p className="text-muted-foreground">Review and manage all your financial records. Only Admins can add new records.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportData} disabled={financialData.length === 0}>
@@ -129,12 +130,23 @@ export default function FinancialsPage() {
             Export Data
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button disabled={!canAddRecord} title={!canAddRecord ? "You don't have permission to add records" : ""}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Record
-              </Button>
-            </DialogTrigger>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                   <DialogTrigger asChild>
+                      <Button disabled={!canAddRecord}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Record
+                      </Button>
+                    </DialogTrigger>
+                </TooltipTrigger>
+                {!canAddRecord && (
+                    <TooltipContent>
+                      <p>Only Admins can add new records. Please contact an Admin for assistance.</p>
+                    </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Add Financial Record</DialogTitle>

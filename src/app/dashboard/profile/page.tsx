@@ -43,6 +43,8 @@ export default function ProfilePage() {
     setIsClient(true);
   }, []);
 
+  const canEdit = isClient && role === 'Admin';
+
   useEffect(() => {
     if (role && role !== 'Guest') {
       const savedAvatar = localStorage.getItem(`user-avatar-${role}`);
@@ -160,7 +162,7 @@ export default function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>
-            <CardDescription>Update your personal information here.</CardDescription>
+            <CardDescription>Update your personal information here. Only Admins can change profile pictures.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -185,15 +187,16 @@ export default function ProfilePage() {
                         onChange={handleImageChange}
                         className="hidden"
                         accept="image/*"
+                        disabled={!canEdit}
                     />
-                    <Button variant="outline" onClick={handleUploadClick}>
+                    <Button variant="outline" onClick={handleUploadClick} disabled={!canEdit}>
                         <Upload className="mr-2 h-4 w-4" />
                         Upload Picture
                     </Button>
                     <p className="text-sm text-muted-foreground">PNG, JPG, GIF up to 10MB.</p>
                 </div>
             </div>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
+            <Button onClick={handleSaveChanges} disabled={!canEdit}>Save Changes</Button>
           </CardContent>
         </Card>
       </div>

@@ -28,8 +28,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { useUser } from "@/hooks/use-user";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const initialClients: Client[] = [
   { id: '1', name: 'Alice Johnson', email: 'alice.j@example.com', company: 'Innovate LLC', status: 'active', lastContact: '2024-06-20' },
@@ -45,6 +47,12 @@ export default function ClientsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isClient, setIsClient] = useState(false);
+  const { role } = useUser();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Add Form state
   const [newName, setNewName] = useState('');
@@ -58,6 +66,7 @@ export default function ClientsPage() {
   const [editCompany, setEditCompany] = useState('');
   const [editStatus, setEditStatus] = useState<'active' | 'inactive' | ''>('');
 
+  const canEdit = isClient && role === 'Admin';
 
   const handleSaveClient = () => {
     if (!newName || !newEmail || !newCompany || !newStatus) {
@@ -166,7 +175,7 @@ export default function ClientsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Client Management</h1>
-          <p className="text-muted-foreground">View, add, and manage your client list.</p>
+          <p className="text-muted-foreground">View, add, and manage your client list. Only Admins can add or modify clients.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExportData} disabled={clients.length === 0}>
@@ -174,12 +183,23 @@ export default function ClientsPage() {
             Export Clients
           </Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Client
-              </Button>
-            </DialogTrigger>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                   <DialogTrigger asChild>
+                      <Button disabled={!canEdit}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Client
+                      </Button>
+                    </DialogTrigger>
+                </TooltipTrigger>
+                 {!canEdit && (
+                  <TooltipContent>
+                    <p>Only Admins can add new clients. Please contact an Admin for assistance.</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Add New Client</DialogTitle>
@@ -260,7 +280,7 @@ export default function ClientsPage() {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" disabled={!canEdit}>
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Client actions</span>
                           </Button>
@@ -272,13 +292,13 @@ export default function ClientsPage() {
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditClick(client)}>
+                          <DropdownMenuItem onClick={() => handleEditClick(client)} disabled={!canEdit}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive" disabled={!canEdit}>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete
                               </DropdownMenuItem>

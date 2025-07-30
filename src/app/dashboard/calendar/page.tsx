@@ -14,6 +14,8 @@ import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUser } from "@/hooks/use-user";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const initialAppointments: Appointment[] = [
   { id: '1', time: '10:00 AM', title: 'Project Kickoff with Acme Inc.', description: 'Discussing the new marketing campaign strategy.' },
@@ -28,6 +30,7 @@ export default function CalendarPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const { role } = useUser();
 
   useEffect(() => {
     setIsClient(true);
@@ -43,6 +46,7 @@ export default function CalendarPage() {
   const [editTime, setEditTime] = useState('');
   const [editDescription, setEditDescription] = useState('');
   
+  const canEdit = isClient && role === 'Admin';
 
   const handleSaveAppointment = () => {
     if (!newTitle || !newTime) {
@@ -131,15 +135,26 @@ export default function CalendarPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Appointment Calendar</h1>
-          <p className="text-muted-foreground">Manage your schedule and appointments.</p>
+          <p className="text-muted-foreground">Manage your schedule and appointments. Only Admins can add or modify appointments.</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              New Appointment
-            </Button>
-          </DialogTrigger>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DialogTrigger asChild>
+                  <Button disabled={!canEdit}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    New Appointment
+                  </Button>
+                </DialogTrigger>
+              </TooltipTrigger>
+              {!canEdit && (
+                <TooltipContent>
+                  <p>Only Admins can add appointments. Please contact an Admin for assistance.</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Add New Appointment</DialogTitle>
@@ -204,16 +219,16 @@ export default function CalendarPage() {
                       </div>
                        <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="flex-shrink-0">
+                          <Button variant="ghost" size="icon" className="flex-shrink-0" disabled={!canEdit}>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditAppointment(apt)}>
+                          <DropdownMenuItem onClick={() => handleEditAppointment(apt)} disabled={!canEdit}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteAppointment(apt.id)} className="text-destructive focus:text-destructive">
+                          <DropdownMenuItem onClick={() => handleDeleteAppointment(apt.id)} className="text-destructive focus:text-destructive" disabled={!canEdit}>
                              <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>

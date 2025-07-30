@@ -22,16 +22,11 @@ export function middleware(request: NextRequest) {
   }
   
   if (isAuthenticated && pathname.startsWith('/dashboard')) {
-    // Role-based access control for settings page
+    // Role-based access control for settings page - ONLY ADMIN
     if (pathname.startsWith('/dashboard/settings')) {
-      if (userRole !== 'Manager' && userRole !== 'Admin') {
+      if (userRole !== 'Admin') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
-    }
-     // Role-based access control for support page editing (conceptually, middleware protects routes)
-    if (pathname.startsWith('/dashboard/support')) {
-      // While editing is handled on the client, you could enforce that only Admins see the page
-      // if it were a purely administrative function. For now, client-side logic is sufficient.
     }
   }
 
