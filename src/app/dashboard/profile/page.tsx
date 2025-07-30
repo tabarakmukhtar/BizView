@@ -44,11 +44,11 @@ export default function ProfilePage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
+  
   const canEdit = isClient && role === 'Admin';
 
   useEffect(() => {
-    if (role && role !== 'Guest') {
+    if (role && role !== 'Guest' && isClient) {
       const savedAvatar = localStorage.getItem(`user-avatar-${role}`);
       if (savedAvatar) {
         setAvatarPreview(savedAvatar);
@@ -56,7 +56,7 @@ export default function ProfilePage() {
         setAvatarPreview('https://placehold.co/100x100');
       }
     }
-  }, [role]);
+  }, [role, isClient]);
 
   useEffect(() => {
     setName(userName);

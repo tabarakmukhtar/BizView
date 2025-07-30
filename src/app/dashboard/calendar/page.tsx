@@ -25,6 +25,11 @@ export default function CalendarPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const { role } = useUser();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // State for the new appointment form
   const [newTitle, setNewTitle] = useState('');
@@ -83,7 +88,7 @@ export default function CalendarPage() {
       apt.id === selectedAppointment.id 
       ? { ...apt, title: editTitle, time: editTime, description: editDescription } 
       : apt
-    ));
+    ).sort((a,b) => a.time.localeCompare(b.time)));
 
     setIsEditDialogOpen(false);
     setSelectedAppointment(null);
@@ -102,7 +107,7 @@ export default function CalendarPage() {
     });
   };
 
-  if (loading) {
+  if (loading || !isClient) {
     return (
        <div className="flex flex-col gap-8">
         <div className="flex items-center justify-between">

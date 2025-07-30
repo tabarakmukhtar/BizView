@@ -19,13 +19,17 @@ import { DollarSign, Users, TrendingUp, TrendingDown, PackageOpen } from 'lucide
 import { FinancialChart } from '@/components/financial-chart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect, useMemo } from 'react';
-import type { FinancialRecord } from '@/lib/definitions';
 import { useUser } from '@/hooks/use-user';
 import { useData } from '@/hooks/use-data';
 
 export default function DashboardPage() {
     const { name } = useUser();
     const { financialData, clients, loading } = useData();
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const summaryData = useMemo(() => {
         const revenue = financialData.filter(r => r.type === 'revenue').reduce((acc, r) => acc + r.amount, 0);
@@ -43,7 +47,7 @@ export default function DashboardPage() {
     }, [financialData]);
 
 
-    if (loading) {
+    if (loading || !isClient) {
       return (
         <div className="flex flex-col gap-8">
             <div>
