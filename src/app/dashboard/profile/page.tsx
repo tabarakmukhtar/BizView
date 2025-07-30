@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Upload } from 'lucide-react';
 import { useUser } from '@/hooks/use-user';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const profileDetails: Record<string, { email: string, title: string }> = {
   Manager: {
@@ -83,7 +84,52 @@ export default function ProfilePage() {
   };
 
   if (!isClient) {
-    return null; // or a loading skeleton
+    return (
+       <div className="grid gap-8 md:grid-cols-3">
+        <div className="md:col-span-1">
+            <Card>
+                <CardHeader className="items-center text-center">
+                    <Skeleton className="h-24 w-24 rounded-full mb-4" />
+                    <Skeleton className="h-7 w-32 mb-1" />
+                    <Skeleton className="h-5 w-40" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-5 w-48 mx-auto" />
+                </CardContent>
+            </Card>
+        </div>
+        <div className="md:col-span-2">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-32 mb-1" />
+                    <Skeleton className="h-5 w-56" />
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Skeleton className="h-5 w-20" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-5 w-28" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-5 w-32" />
+                        <div className="flex items-center gap-4">
+                           <Skeleton className="h-10 w-36" />
+                           <Skeleton className="h-5 w-48" />
+                        </div>
+                    </div>
+                    <Skeleton className="h-10 w-32" />
+                </CardContent>
+            </Card>
+        </div>
+      </div>
+    );
   }
 
   return (

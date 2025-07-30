@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const initialAppointments: Appointment[] = [
   { id: '1', time: '10:00 AM', title: 'Project Kickoff with Acme Inc.', description: 'Discussing the new marketing campaign strategy.' },
@@ -109,7 +110,21 @@ export default function CalendarPage() {
   };
 
   if (!isClient) {
-    return null;
+    return (
+       <div className="flex flex-col gap-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-9 w-72 mb-2" />
+            <Skeleton className="h-5 w-64" />
+          </div>
+          <Skeleton className="h-10 w-44" />
+        </div>
+        <div className="grid gap-8 md:grid-cols-3">
+          <Skeleton className="h-[305px] md:col-span-1" />
+          <Skeleton className="h-[305px] md:col-span-2" />
+        </div>
+      </div>
+    );
   }
   
   return (
