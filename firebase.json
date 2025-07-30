@@ -1,17 +1,10 @@
 {
-  "hosting": [
-    {
-      "site": "bizview",
-      "public": "public",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "app": {
-        "backendId": "bizview-backend",
-        "region": "us-central1"
-      }
+  "hosting": {
+    "source": ".",
+    "site": "bizview",
+    "app": {
+      "backendId": "bizview-backend",
+      "region": "us-central1"
     }
-  ]
+  }
 }
