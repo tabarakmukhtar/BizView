@@ -1,6 +1,8 @@
+
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { getFinancialForecast, FormState } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,7 +34,7 @@ function SubmitButton() {
 }
 
 export function ForecastingForm() {
-  const [state, formAction] = useFormState(getFinancialForecast, initialState);
+  const [state, formAction] = useActionState(getFinancialForecast, initialState);
 
   return (
     <div className="space-y-8">
