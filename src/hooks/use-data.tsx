@@ -3,6 +3,7 @@
 
 import type { Client, FinancialRecord, Appointment } from '@/lib/definitions';
 import { createContext, useContext, useState, useEffect, type ReactNode, useMemo } from 'react';
+import { useIsClient } from './use-is-client';
 
 // Initial data (can be replaced with API calls) - ALL AMOUNTS ARE IN USD (BASE CURRENCY)
 const initialClients: Client[] = [
@@ -57,34 +58,34 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [appointments, setAppointmentsState] = useState<Appointment[]>([]);
   const [currency, setCurrencyState] = useState<Currency>('USD');
   const [loading, setLoading] = useState(true);
+  const isClient = useIsClient();
 
   useEffect(() => {
-    // Simulate loading data from an API and localStorage
-    try {
-      const storedClients = localStorage.getItem('bizview-clients');
-      setClientsState(storedClients ? JSON.parse(storedClients) : initialClients);
+    if (isClient) {
+      try {
+        const storedClients = localStorage.getItem('bizview-clients');
+        setClientsState(storedClients ? JSON.parse(storedClients) : initialClients);
 
-      const storedFinancials = localStorage.getItem('bizview-financials');
-      // All data in localStorage is stored in the base currency (USD)
-      setFinancialDataState(storedFinancials ? JSON.parse(storedFinancials) : initialFinancialData);
+        const storedFinancials = localStorage.getItem('bizview-financials');
+        setFinancialDataState(storedFinancials ? JSON.parse(storedFinancials) : initialFinancialData);
 
-      const storedAppointments = localStorage.getItem('bizview-appointments');
-      setAppointmentsState(storedAppointments ? JSON.parse(storedAppointments) : initialAppointments);
-      
-      const storedCurrency = localStorage.getItem('bizview-currency');
-      setCurrencyState((storedCurrency as Currency) || 'USD');
+        const storedAppointments = localStorage.getItem('bizview-appointments');
+        setAppointmentsState(storedAppointments ? JSON.parse(storedAppointments) : initialAppointments);
+        
+        const storedCurrency = localStorage.getItem('bizview-currency');
+        setCurrencyState((storedCurrency as Currency) || 'USD');
 
-    } catch (error) {
-      console.error("Failed to parse data from localStorage", error);
-      // Fallback to initial data if localStorage is corrupt
-      setClientsState(initialClients);
-      setFinancialDataState(initialFinancialData);
-      setAppointmentsState(initialAppointments);
-      setCurrencyState('USD');
-    } finally {
-      setLoading(false);
+      } catch (error) {
+        console.error("Failed to parse data from localStorage", error);
+        setClientsState(initialClients);
+        setFinancialDataState(initialFinancialData);
+        setAppointmentsState(initialAppointments);
+        setCurrencyState('USD');
+      } finally {
+        setLoading(false);
+      }
     }
-  }, []);
+  }, [isClient]);
 
   const setClients = (newClients: Client[]) => {
     setClientsState(newClients);
@@ -93,7 +94,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const setFinancialData = (newFinancialData: FinancialRecord[]) => {
     setFinancialDataState(newFinancialData);
-    // Always store in USD
     localStorage.setItem('bizview-financials', JSON.stringify(newFinancialData));
   };
 
@@ -107,14 +107,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('bizview-currency', newCurrency);
   }
 
-  // Memoize the converted financial data to avoid recalculating on every render
   const convertedFinancialData = useMemo(() => {
+    if (!isClient) return [];
     const rate = exchangeRates[currency];
     return financialData.map(record => ({
       ...record,
       amount: record.amount * rate,
     }));
-  }, [financialData, currency]);
+  }, [financialData, currency, isClient]);
 
   return (
     <DataContext.Provider

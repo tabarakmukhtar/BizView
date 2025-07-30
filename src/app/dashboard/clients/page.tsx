@@ -28,12 +28,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useData } from "@/hooks/use-data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsClient } from "@/hooks/use-is-client";
 
 
 export default function ClientsPage() {
@@ -43,6 +44,7 @@ export default function ClientsPage() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const { role } = useUser();
+  const isClient = useIsClient();
 
   // Add Form state
   const [newName, setNewName] = useState('');
@@ -159,7 +161,7 @@ export default function ClientsPage() {
     });
   };
 
-  if (loading) {
+  if (loading || !isClient) {
     return (
        <div className="flex flex-col gap-8">
         <div className="flex items-center justify-between">

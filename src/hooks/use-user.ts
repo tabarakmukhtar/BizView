@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useIsClient } from './use-is-client';
 
 type UserRole = 'Manager' | 'Admin' | 'Accountant' | 'Guest';
 
@@ -36,8 +37,13 @@ export function useUser(): User {
     role: 'Guest',
     isAuthenticated: false,
   });
+  const isClient = useIsClient();
 
   useEffect(() => {
+    if (!isClient) {
+      return;
+    }
+
     function checkUser() {
         const role = getCookie('user_role') as UserRole | undefined;
         const authToken = getCookie('auth_token');
@@ -94,7 +100,7 @@ export function useUser(): User {
         history.replaceState = originalReplaceState;
         clearInterval(interval);
     };
-  }, []);
+  }, [isClient]);
 
   return user;
 }
