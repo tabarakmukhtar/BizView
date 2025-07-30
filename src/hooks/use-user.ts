@@ -77,11 +77,17 @@ export function useUser(): User {
     
     window.addEventListener('popstate', checkUser);
 
+    // This listens for cookie changes, but it's not a standard event.
+    // A more robust solution might involve a global state management library.
+    // For this prototype, we'll poll for changes on an interval as a fallback.
+    const interval = setInterval(checkUser, 1000);
+
     return () => {
         window.removeEventListener('focus', checkUser);
         window.removeEventListener('popstate', checkUser);
         history.pushState = originalPushState;
         history.replaceState = originalReplaceState;
+        clearInterval(interval);
     };
   }, []);
 

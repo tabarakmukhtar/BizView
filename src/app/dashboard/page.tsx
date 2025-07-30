@@ -38,15 +38,10 @@ export default function DashboardPage() {
         { description: 'Office Supplies', amount: 230.50, type: 'expense' },
         { description: 'Consulting Services', amount: 1200, type: 'revenue' },
     ]);
-    const [loading, setLoading] = useState(true);
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 1500);
-        return () => clearTimeout(timer);
     }, []);
 
     if (!isClient) {
@@ -115,7 +110,7 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {loading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold">${summaryData.revenue.toLocaleString()}</div>}
+            <div className="text-2xl font-bold">${summaryData.revenue.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
@@ -125,7 +120,7 @@ export default function DashboardPage() {
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-             {loading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold">${summaryData.expenses.toLocaleString()}</div>}
+             <div className="text-2xl font-bold">${summaryData.expenses.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">+5.2% from last month</p>
           </CardContent>
         </Card>
@@ -135,7 +130,7 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {loading ? <Skeleton className="h-8 w-3/4" /> : <div className="text-2xl font-bold text-green-600 dark:text-green-500">${summaryData.profit.toLocaleString()}</div>}
+            <div className="text-2xl font-bold text-green-600 dark:text-green-500">${summaryData.profit.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">+25.0% from last month</p>
           </CardContent>
         </Card>
@@ -145,7 +140,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-             {loading ? <Skeleton className="h-8 w-1/2" /> : <div className="text-2xl font-bold">+{summaryData.clients}</div>}
+             <div className="text-2xl font-bold">+{summaryData.clients}</div>
             <p className="text-xs text-muted-foreground">+3 since last month</p>
           </CardContent>
         </Card>
@@ -159,16 +154,7 @@ export default function DashboardPage() {
             <CardDescription>An overview of your latest financial activities.</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
-                 <div className="space-y-4">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="flex justify-between items-center">
-                        <Skeleton className="h-5 w-3/5" />
-                        <Skeleton className="h-5 w-1/5" />
-                      </div>
-                    ))}
-                 </div>
-            ) : recentTransactions.length > 0 ? (
+            {recentTransactions.length > 0 ? (
                  <Table>
                     <TableBody>
                         {recentTransactions.map((transaction, index) => (

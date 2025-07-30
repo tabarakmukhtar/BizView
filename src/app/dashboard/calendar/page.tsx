@@ -23,7 +23,7 @@ const initialAppointments: Appointment[] = [
 
 export default function CalendarPage() {
   const [appointments, setAppointments] = useState(initialAppointments);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
@@ -31,7 +31,6 @@ export default function CalendarPage() {
 
   useEffect(() => {
     setIsClient(true);
-    setSelectedDate(new Date());
   }, []);
 
   // State for the new appointment form

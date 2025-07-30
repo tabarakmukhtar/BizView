@@ -34,7 +34,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const [isMounted, setIsMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -43,7 +43,7 @@ export default function SettingsPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   useEffect(() => {
-    setIsMounted(true);
+    setIsClient(true);
   }, []);
 
   const handleSaveChanges = () => {
@@ -64,7 +64,7 @@ export default function SettingsPage() {
   };
 
 
-  if (!isMounted) {
+  if (!isClient) {
     return (
        <div className="flex flex-col gap-8">
         <div>
