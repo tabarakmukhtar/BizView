@@ -18,18 +18,15 @@ import { Badge } from '@/components/ui/badge';
 import { DollarSign, Users, TrendingUp, TrendingDown, PackageOpen } from 'lucide-react';
 import { FinancialChart } from '@/components/financial-chart';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useUser } from '@/hooks/use-user';
 import { useData } from '@/hooks/use-data';
+import { useIsClient } from '@/hooks/use-is-client';
 
 export default function DashboardPage() {
     const { name } = useUser();
     const { financialData, clients, loading, currency } = useData();
-    const [isClient, setIsClient] = useState(false);
-
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+    const isClient = useIsClient();
 
     const summaryData = useMemo(() => {
         const revenue = financialData.filter(r => r.type === 'revenue').reduce((acc, r) => acc + r.amount, 0);

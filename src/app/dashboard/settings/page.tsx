@@ -33,10 +33,11 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUser } from '@/hooks/use-user';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useIsClient } from '@/hooks/use-is-client';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsClient();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -45,10 +46,6 @@ export default function SettingsPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { role } = useUser();
   
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const canEdit = isClient && role === 'Admin';
 
   const handleSaveChanges = () => {

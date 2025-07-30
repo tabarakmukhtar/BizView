@@ -17,20 +17,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/hooks/use-user";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useData } from "@/hooks/use-data";
+import { useIsClient } from "@/hooks/use-is-client";
 
 export default function CalendarPage() {
   const { appointments, setAppointments, loading } = useData();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const { role } = useUser();
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsClient();
 
   useEffect(() => {
-    setIsClient(true);
-    setSelectedDate(new Date());
-  }, []);
+    // To prevent hydration errors, we set the initial date on the client.
+    if(isClient) {
+      setSelectedDate(new Date());
+    }
+  }, [isClient]);
 
   // State for the new appointment form
   const [newTitle, setNewTitle] = useState('');

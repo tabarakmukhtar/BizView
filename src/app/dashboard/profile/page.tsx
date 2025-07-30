@@ -13,6 +13,7 @@ import { useUser } from '@/hooks/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useIsClient } from '@/hooks/use-is-client';
 
 type UserRole = 'Manager' | 'Admin' | 'Accountant' | 'Guest';
 
@@ -43,16 +44,15 @@ export default function ProfilePage() {
   const [email, setEmail] = useState('');
   const [title, setTitle] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/100x100');
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setIsClient(true);
     // Set the initial role to the current user's role once the component mounts
-    if (currentUserRole && currentUserRole !== 'Guest') {
+    if (isClient && currentUserRole && currentUserRole !== 'Guest') {
       setSelectedRole(currentUserRole);
     }
-  }, [currentUserRole]);
+  }, [currentUserRole, isClient]);
   
   const isAdmin = isClient && currentUserRole === 'Admin';
 
