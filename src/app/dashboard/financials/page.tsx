@@ -49,7 +49,7 @@ export default function FinancialsPage() {
   const [newType, setNewType] = useState<'revenue' | 'expense' | ''>('');
   const [newAmount, setNewAmount] = useState<number | string>('');
 
-  const canAddRecord = role === 'Manager' || role === 'Admin';
+  const canAddRecord = isClient && (role === 'Manager' || role === 'Admin');
 
   const handleAddRecord = () => {
     if (!newDate || !newDescription || !newCategory || !newType || !newAmount) {
