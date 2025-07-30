@@ -20,7 +20,7 @@ import { useData } from "@/hooks/use-data";
 
 export default function CalendarPage() {
   const { appointments, setAppointments, loading } = useData();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
@@ -29,6 +29,7 @@ export default function CalendarPage() {
 
   useEffect(() => {
     setIsClient(true);
+    setSelectedDate(new Date());
   }, []);
 
   // State for the new appointment form
