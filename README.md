@@ -10,7 +10,7 @@ BizView is a modern, AI-powered business management dashboard built with Next.js
 | **Financials Page** | **Appointment Calendar** |
 | ![BizView Financials Screenshot](https://placehold.co/600x400.png) | ![BizView Calendar Screenshot](https://placehold.co/600x400.png) |
 
-*These are placeholder images. Replace `https://placehold.co/600x400.png` with the URLs to your own screenshots.*
+*These are placeholder images. To add your own, take screenshots of your application, upload them to your GitHub repository or an image hosting service, and replace the `https://placehold.co/600x400.png` URLs with the URLs to your images.*
 
 ## Core Features
 
