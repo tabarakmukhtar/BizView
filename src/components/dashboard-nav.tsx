@@ -16,6 +16,7 @@ import {
   Users,
   Settings,
   HelpCircle,
+  Search,
 } from 'lucide-react';
 
 const menuItems = [
@@ -44,6 +45,11 @@ const menuItems = [
     label: 'Clients',
     icon: Users,
   },
+   {
+    href: '/dashboard/search',
+    label: 'Search',
+    icon: Search,
+  },
 ];
 
 const secondaryMenuItems = [
@@ -70,7 +76,7 @@ export function DashboardNav() {
             <SidebarMenuItem key={item.href}>
               <Link href={item.href}>
                 <SidebarMenuButton
-                  isActive={pathname === item.href}
+                  isActive={pathname === item.href || (item.href === '/dashboard/search' && pathname.startsWith('/dashboard/search'))}
                   tooltip={item.label}
                 >
                   <item.icon />

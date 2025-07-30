@@ -16,9 +16,9 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Search, Bell, LifeBuoy, LogOut, User, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 const notifications = [
   {
@@ -39,6 +39,7 @@ const notifications = [
 export function Header() {
   const router = useRouter();
   const [avatarUrl, setAvatarUrl] = useState('https://placehold.co/40x40');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const updateAvatar = () => {
@@ -57,10 +58,15 @@ export function Header() {
   }, []);
 
   const handleLogout = () => {
-    // In a real app, you'd call an API to invalidate the session.
-    // Here, we'll just remove the cookie.
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     router.push('/login');
+  };
+
+  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   return (
@@ -69,13 +75,15 @@ export function Header() {
         <SidebarTrigger />
       </div>
       <div className="flex-1">
-        <form>
+        <form onSubmit={handleSearchSubmit}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search..."
               className="w-full rounded-lg bg-background pl-9 md:w-[300px] lg:w-[400px]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </form>
