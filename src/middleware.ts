@@ -9,32 +9,43 @@ export function middleware(request: NextRequest) {
   const userRole = request.cookies.get('user_role')?.value;
 
   const isAuthPage = pathname.startsWith('/login');
+  const isDashboardPage = pathname.startsWith('/dashboard');
 
+  // If on login page
   if (isAuthPage) {
+    // If authenticated, redirect to dashboard
     if (isAuthenticated) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
+    // Otherwise, allow access to login page
     return NextResponse.next();
   }
   
-  if (!isAuthenticated && pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-  
-  if (isAuthenticated && pathname.startsWith('/dashboard')) {
-    // Role-based access control for settings page - ONLY ADMIN
-    if (pathname.startsWith('/dashboard/settings')) {
-      if (userRole !== 'Admin') {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
+  // If trying to access a dashboard page
+  if (isDashboardPage) {
+    // If not authenticated, redirect to login
+    if (!isAuthenticated) {
+      return NextResponse.redirect(new URL('/login', request.url));
     }
-    // Role-based access for Accountant - ONLY Financials
+
+    // If authenticated, apply role-based access control
     if (userRole === 'Accountant') {
-        const allowedPaths = ['/dashboard', '/dashboard/financials', '/dashboard/profile', '/dashboard/support'];
-        if (!allowedPaths.some(p => pathname.startsWith(p))) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
+      const allowedPaths = [
+        '/dashboard', 
+        '/dashboard/financials', 
+        '/dashboard/profile', 
+        '/dashboard/support',
+        '/dashboard/search'
+      ];
+      if (!allowedPaths.some(p => pathname.startsWith(p))) {
+          return NextResponse.redirect(new URL('/dashboard/financials', request.url));
+      }
+    } else if (userRole === 'Manager') {
+       if (pathname.startsWith('/dashboard/settings')) {
+         return NextResponse.redirect(new URL('/dashboard', request.url));
+       }
     }
+    // Admin has access to everything, so no specific redirect needed
   }
 
   return NextResponse.next();
