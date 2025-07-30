@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileDown, MoreHorizontal, PlusCircle } from "lucide-react";
+import { FileDown, MoreHorizontal, PlusCircle, Trash2, Edit, Eye } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,13 +41,22 @@ const initialClients: Client[] = [
 
 export default function ClientsPage() {
   const [clients, setClients] = useState(initialClients);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
-  // Form state
+  // Add Form state
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newCompany, setNewCompany] = useState('');
   const [newStatus, setNewStatus] = useState<'active' | 'inactive' | ''>('');
+
+  // Edit Form state
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editCompany, setEditCompany] = useState('');
+  const [editStatus, setEditStatus] = useState<'active' | 'inactive' | ''>('');
 
 
   const handleSaveClient = () => {
@@ -70,16 +80,56 @@ export default function ClientsPage() {
 
     setClients([newClient, ...clients]);
 
-    // Reset form and close dialog
     setNewName('');
     setNewEmail('');
     setNewCompany('');
     setNewStatus('');
-    setIsDialogOpen(false);
+    setIsAddDialogOpen(false);
     
     toast({
       title: "Client Added",
       description: `${newName} has been successfully added to your client list.`,
+    });
+  };
+
+  const handleEditClick = (client: Client) => {
+    setSelectedClient(client);
+    setEditName(client.name);
+    setEditEmail(client.email);
+    setEditCompany(client.company);
+    setEditStatus(client.status);
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleViewClick = (client: Client) => {
+    setSelectedClient(client);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleUpdateClient = () => {
+    if (!selectedClient) return;
+
+    const updatedClients = clients.map(c => 
+      c.id === selectedClient.id 
+      ? { ...c, name: editName, email: editEmail, company: editCompany, status: editStatus as 'active' | 'inactive' } 
+      : c
+    );
+    setClients(updatedClients);
+    setIsEditDialogOpen(false);
+    setSelectedClient(null);
+
+     toast({
+      title: "Client Updated",
+      description: "Client details have been successfully updated.",
+    });
+  };
+
+  const handleDeleteClient = (clientId: string) => {
+    setClients(clients.filter(c => c.id !== clientId));
+    toast({
+        title: "Client Deleted",
+        description: "The client has been removed from your list.",
+        variant: "destructive"
     });
   };
 
@@ -119,7 +169,7 @@ export default function ClientsPage() {
             <FileDown className="mr-2 h-4 w-4" />
             Export Clients
           </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -213,9 +263,36 @@ export default function ClientsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewClick(client)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditClick(client)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the client from your records.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteClient(client.id)}>
+                                Continue
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -225,6 +302,68 @@ export default function ClientsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit Client Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Client</DialogTitle>
+            <DialogDescription>Update client details.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="edit-name" className="text-right">Name</Label>
+                  <Input id="edit-name" className="col-span-3" value={editName} onChange={(e) => setEditName(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="edit-email" className="text-right">Email</Label>
+                  <Input id="edit-email" type="email" className="col-span-3" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="edit-company" className="text-right">Company</Label>
+                  <Input id="edit-company" className="col-span-3" value={editCompany} onChange={(e) => setEditCompany(e.target.value)} />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="edit-status" className="text-right">Status</Label>
+                  <Select onValueChange={(value) => setEditStatus(value as 'active' | 'inactive')} value={editStatus}>
+                  <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                  </Select>
+              </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleUpdateClient}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* View Client Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>{selectedClient?.name}</DialogTitle>
+                <DialogDescription>
+                    Contact details and information.
+                </DialogDescription>
+            </DialogHeader>
+            {selectedClient && (
+                <div className="space-y-4 py-4">
+                    <p><strong>Email:</strong> {selectedClient.email}</p>
+                    <p><strong>Company:</strong> {selectedClient.company}</p>
+                    <p><strong>Status:</strong> <Badge variant={selectedClient.status === 'active' ? 'default' : 'secondary'} className="capitalize">{selectedClient.status}</Badge></p>
+                    <p><strong>Last Contact:</strong> {selectedClient.lastContact}</p>
+                </div>
+            )}
+            <DialogFooter>
+                <Button onClick={() => setIsViewDialogOpen(false)}>Close</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
