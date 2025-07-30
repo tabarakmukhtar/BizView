@@ -7,8 +7,8 @@ BizView is a modern, AI-powered business management dashboard built with Next.js
 | Dashboard | Client Management |
 | :---: | :---: |
 | <img src="./screenshots/dashboard.png" alt="BizView Dashboard Screenshot" width="100%"> | <img src="./screenshots/client-management.png" alt="BizView Client Management Screenshot" width="100%"> |
-| **Financials Page** | **Appointment Calendar** |
-| <img src="./screenshots/financials.png" alt="BizView Financials Screenshot" width="100%"> | <img src="./screenshots/calender.png" alt="BizView Calendar Screenshot" width="100%"> |
+| **Financials Page** | **Appointment Calendar** | **Forecastings Page** |
+| <img src="./screenshots/financials.png" alt="BizView Financials Screenshot" width="100%"> | <img src="./screenshots/calender.png" alt="BizView Calendar Screenshot" width="100%"> | <img src="./screenshots/forecastings.png" alt="BizView Forecastings Screenshot" width="100%"> |
 
 ## Core Features
 
