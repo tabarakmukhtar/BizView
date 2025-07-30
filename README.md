@@ -10,12 +10,6 @@ BizView is a modern, AI-powered business management dashboard built with Next.js
 | **Financials Page** | **Appointment Calendar** |
 | ![BizView Financials Screenshot](./screenshots/financials.png) | ![BizView Calendar Screenshot](./screenshots/calendar.png) |
 
-***To add your own screenshots:***
-1.  *Create a new folder named `screenshots` in the root of your project.*
-2.  *Take screenshots of your application and save them in the `screenshots` folder.*
-3.  *Name them `dashboard.png`, `client-management.png`, `financials.png`, and `calendar.png` to match the paths above.*
-4.  *Commit the new folder and files to your GitHub repository.*
-
 ## Core Features
 
 - **Secure Authentication**: Robust login system with role-based access control (Admin, Manager, Accountant).
