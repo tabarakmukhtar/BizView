@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -54,16 +55,18 @@ export function DashboardNav() {
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
+              <Link href={item.href} passHref>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === item.href}
                   tooltip={item.label}
                 >
-                  <Link href={item.href}>
+                  <a>
                     <item.icon />
                     <span>{item.label}</span>
-                  </Link>
+                  </a>
                 </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -71,20 +74,24 @@ export function DashboardNav() {
       <div className="mt-auto">
         <SidebarMenu>
           <SidebarMenuItem>
+            <Link href="#" passHref>
               <SidebarMenuButton asChild tooltip="Settings">
-                <Link href="#">
+                <a>
                   <Settings />
                   <span>Settings</span>
-                </Link>
+                </a>
               </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Help & Support">
-              <Link href="#">
-                <HelpCircle />
-                <span>Help & Support</span>
-              </Link>
-            </SidebarMenuButton>
+            <Link href="#" passHref>
+              <SidebarMenuButton asChild tooltip="Help & Support">
+                <a>
+                  <HelpCircle />
+                  <span>Help & Support</span>
+                </a>
+              </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </div>
