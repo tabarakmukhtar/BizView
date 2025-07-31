@@ -29,33 +29,31 @@ export function FinancialChart() {
     const { currency, financialData } = useData();
 
     const chartData = useMemo(() => {
-        // In a real app, you'd aggregate data by month. For this demo, we'll create a simplified aggregation.
-        const monthlyData: { [key: string]: { month: string, revenue: number, expenses: number }} = {};
+        const monthlyData: { [key: string]: { month: string, revenue: number, expenses: number, date: Date }} = {};
 
-        financialData.forEach(record => {
-            const month = new Date(record.date).toLocaleString('default', { month: 'short' });
-            if (!monthlyData[month]) {
-                monthlyData[month] = { month, revenue: 0, expenses: 0 };
+        // Use a copy of financialData to avoid potential side effects from sorting
+        [...financialData].forEach(record => {
+            const recordDate = new Date(record.date);
+            // Create a key like "2024-01" for sorting and grouping
+            const monthKey = `${recordDate.getFullYear()}-${String(recordDate.getMonth() + 1).padStart(2, '0')}`;
+            
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = { 
+                  month: recordDate.toLocaleString('default', { month: 'short', year: '2-digit' }), 
+                  revenue: 0, 
+                  expenses: 0,
+                  date: new Date(recordDate.getFullYear(), recordDate.getMonth(), 1)
+                };
             }
             if (record.type === 'revenue') {
-                monthlyData[month].revenue += record.amount;
+                monthlyData[monthKey].revenue += record.amount;
             } else {
-                monthlyData[month].expenses += record.amount;
+                monthlyData[monthKey].expenses += record.amount;
             }
         });
         
-        // Example static data structure if financialData is sparse
-        const exampleMonths = [
-          { month: 'Jan', revenue: 0, expenses: 0 },
-          { month: 'Feb', revenue: 0, expenses: 0 },
-          { month: 'Mar', revenue: 0, expenses: 0 },
-          { month: 'Apr', revenue: 0, expenses: 0 },
-          { month: 'May', revenue: 0, expenses: 0 },
-          { month: 'Jun', revenue: 0, expenses: 0 },
-        ];
-
-        const aggregatedData = exampleMonths.map(m => monthlyData[m.month] || m);
-        return aggregatedData;
+        // Sort the aggregated data by date to ensure the chart is chronological
+        return Object.values(monthlyData).sort((a, b) => a.date.getTime() - b.date.getTime());
 
     }, [financialData]);
 
@@ -68,16 +66,16 @@ export function FinancialChart() {
 
     const formatYAxis = (value: number) => {
         if (value >= 1000) {
-            return `${currencySymbols[currency]}${Math.round(value / 1000)}k`;
+            return `${currencySymbols[currency] || '$'}${Math.round(value / 1000)}k`;
         }
-        return `${currencySymbols[currency]}${value}`;
+        return `${currencySymbols[currency] || '$'}${value}`;
     }
 
     return (
         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle>Financial Overview</CardTitle>
-            <CardDescription>Monthly revenue vs. expenses.</CardDescription>
+            <CardDescription>A historical overview of monthly revenue vs. expenses.</CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
             <ChartContainer config={chartConfig} className="h-[300px] w-full">
@@ -98,7 +96,7 @@ export function FinancialChart() {
                                         <div className='flex flex-col'>
                                             <span className="text-muted-foreground">{name}</span>
                                             <span className='font-bold' style={{ color: name === 'Revenue' ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' }}>
-                                                {value.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0 })}
+                                                {Number(value).toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0 })}
                                             </span>
                                         </div>
                                     )} 
