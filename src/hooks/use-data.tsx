@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { Client, FinancialRecord, Appointment } from '@/lib/definitions';
+import type { Client, FinancialRecord, Appointment } from "@/lib/definitions";
 import { createContext, useContext, useState, useEffect, type ReactNode, useMemo } from 'react';
 import { useIsClient } from './use-is-client';
 
@@ -22,6 +22,11 @@ const initialFinancialData: FinancialRecord[] = [
   { id: 'txn5', date: '2024-06-10', description: 'Office Supplies Purchase', amount: 175.50, type: 'expense', category: 'Office' },
   { id: 'txn6', date: '2024-06-08', description: 'Logo Design for Startup', amount: 1500, type: 'revenue', category: 'Design' },
   { id: 'txn7', date: '2024-06-05', description: 'Annual Software License', amount: 800, type: 'expense', category: 'Software' },
+   // Previous month's data for comparison
+  { id: 'txn8', date: '2024-05-20', description: 'Consulting Services', amount: 4000, type: 'revenue', category: 'Consulting' },
+  { id: 'txn9', date: '2024-05-15', description: 'Cloud Services', amount: 250, type: 'expense', category: 'Utilities' },
+  { id: 'txn10', date: '2024-05-10', description: 'Marketing Ad Spend', amount: 1000, type: 'expense', category: 'Marketing' },
+  { id: 'txn11', date: '2024-05-05', description: 'E-commerce Site Build', amount: 12000, type: 'revenue', category: 'Web Development' },
 ];
 
 const initialAppointments: Appointment[] = [
@@ -38,6 +43,13 @@ const exchangeRates: Record<Currency, number> = {
   INR: 83.45, // 1 USD = 83.45 INR
 };
 
+interface Summary {
+  revenue: number;
+  expenses: number;
+  profit: number;
+  clients: number;
+}
+
 interface DataContextType {
   clients: Client[];
   setClients: (clients: Client[]) => void;
@@ -48,6 +60,8 @@ interface DataContextType {
   currency: Currency;
   setCurrency: (currency: Currency) => void;
   loading: boolean;
+  summary: Summary;
+  previousSummary: Summary;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -116,6 +130,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }));
   }, [financialData, currency, isClient]);
 
+  const getSummaryForPeriod = (data: FinancialRecord[], clientData: Client[], startDate: Date, endDate: Date): Summary => {
+    const periodData = data.filter(record => {
+      const recordDate = new Date(record.date);
+      return recordDate >= startDate && recordDate < endDate;
+    });
+
+    const revenue = periodData.filter(r => r.type === 'revenue').reduce((acc, r) => acc + r.amount, 0);
+    const expenses = periodData.filter(r => r.type === 'expense').reduce((acc, r) => acc + r.amount, 0);
+    const profit = revenue - expenses;
+    const activeClients = clientData.filter(c => c.status === 'active').length; // This is a snapshot, not period-specific
+
+    return { revenue, expenses, profit, clients: activeClients };
+  }
+
+  const { summary, previousSummary } = useMemo(() => {
+    if (!isClient) {
+      const emptySummary = { revenue: 0, expenses: 0, profit: 0, clients: 0 };
+      return { summary: emptySummary, previousSummary: emptySummary };
+    }
+
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    
+    const currentData = getSummaryForPeriod(financialData, clients, currentMonthStart, nextMonthStart);
+    const previousData = getSummaryForPeriod(financialData, clients, previousMonthStart, currentMonthStart);
+    
+    return { summary: currentData, previousSummary: previousData };
+  }, [financialData, clients, isClient]);
+
+
   return (
     <DataContext.Provider
       value={{
@@ -128,6 +174,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         currency,
         setCurrency,
         loading,
+        summary,
+        previousSummary
       }}
     >
       {children}

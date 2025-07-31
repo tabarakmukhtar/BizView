@@ -15,7 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, Users, TrendingUp, TrendingDown, PackageOpen } from 'lucide-react';
+import { DollarSign, Users, TrendingUp, TrendingDown, PackageOpen, ArrowUp, ArrowDown } from 'lucide-react';
 import { FinancialChart } from '@/components/financial-chart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
@@ -23,9 +23,44 @@ import { useUser } from '@/hooks/use-user';
 import { useData } from '@/hooks/use-data';
 import { useIsClient } from '@/hooks/use-is-client';
 
+function MetricCard({ title, value, percentageChange, previousValue, icon, formatAsCurrency, currency }) {
+  const isPositive = percentageChange >= 0;
+  const isZero = percentageChange === 0 || isNaN(percentageChange) || !isFinite(percentageChange);
+
+  const formatValue = (val) => {
+    if (formatAsCurrency) {
+      return val.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    return `+${val}`;
+  }
+  
+  const getChangeText = () => {
+    if (isZero) return "No change from last month";
+    const change = Math.abs(percentageChange).toFixed(1);
+    return `${change}% ${isPositive ? 'more' : 'less'} than last month`;
+  };
+
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{formatValue(value)}</div>
+        <p className="text-xs text-muted-foreground">
+          {getChangeText()}
+        </p>
+      </CardContent>
+    </Card>
+  )
+}
+
+
 export default function DashboardPage() {
     const { name } = useUser();
-    const { financialData, clients, loading, currency } = useData();
+    const { financialData, clients, loading, currency, summary, previousSummary } = useData();
     const isClient = useIsClient();
 
     const greeting = useMemo(() => {
@@ -39,21 +74,19 @@ export default function DashboardPage() {
         return 'Good Evening';
       }
     }, [isClient]);
-
-    const summaryData = useMemo(() => {
-        const revenue = financialData.filter(r => r.type === 'revenue').reduce((acc, r) => acc + r.amount, 0);
-        const expenses = financialData.filter(r => r.type === 'expense').reduce((acc, r) => acc + r.amount, 0);
-        const profit = revenue - expenses;
-        const activeClients = clients.filter(c => c.status === 'active').length;
-
-        return { revenue, expenses, profit, clients: activeClients };
-    }, [financialData, clients]);
     
     const recentTransactions = useMemo(() => {
         return [...financialData]
             .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
             .slice(0, 5);
     }, [financialData]);
+    
+     const calculatePercentageChange = (current, previous) => {
+      if (previous === 0) {
+        return current > 0 ? 100 : 0;
+      }
+      return ((current - previous) / previous) * 100;
+    };
 
 
     if (loading || !isClient) {
@@ -116,46 +149,42 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{summaryData.revenue.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-             <div className="text-2xl font-bold">{summaryData.expenses.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
-            <p className="text-xs text-muted-foreground">+5.2% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-500">{summaryData.profit.toLocaleString('en-US', { style: 'currency', currency: currency, minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
-            <p className="text-xs text-muted-foreground">+25.0% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-             <div className="text-2xl font-bold">+{summaryData.clients}</div>
-            <p className="text-xs text-muted-foreground">+3 since last month</p>
-          </CardContent>
-        </Card>
+        <MetricCard 
+          title="Total Revenue"
+          value={summary.revenue}
+          percentageChange={calculatePercentageChange(summary.revenue, previousSummary.revenue)}
+          previousValue={previousSummary.revenue}
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+          formatAsCurrency={true}
+          currency={currency}
+        />
+         <MetricCard 
+          title="Total Expenses"
+          value={summary.expenses}
+          percentageChange={calculatePercentageChange(summary.expenses, previousSummary.expenses)}
+          previousValue={previousSummary.expenses}
+          icon={<TrendingDown className="h-4 w-4 text-muted-foreground" />}
+          formatAsCurrency={true}
+          currency={currency}
+        />
+        <MetricCard 
+          title="Net Profit"
+          value={summary.profit}
+          percentageChange={calculatePercentageChange(summary.profit, previousSummary.profit)}
+          previousValue={previousSummary.profit}
+          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+          formatAsCurrency={true}
+          currency={currency}
+        />
+        <MetricCard 
+          title="Active Clients"
+          value={summary.clients}
+          percentageChange={calculatePercentageChange(summary.clients, previousSummary.clients)}
+          previousValue={previousSummary.clients}
+          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+          formatAsCurrency={false}
+          currency={currency}
+        />
       </div>
       
       <div className="grid gap-4 lg:grid-cols-7">
