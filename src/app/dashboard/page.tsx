@@ -28,6 +28,18 @@ export default function DashboardPage() {
     const { financialData, clients, loading, currency } = useData();
     const isClient = useIsClient();
 
+    const greeting = useMemo(() => {
+      if (!isClient) return 'Welcome';
+      const currentHour = new Date().getHours();
+      if (currentHour < 12) {
+        return 'Good Morning';
+      } else if (currentHour < 18) {
+        return 'Good Afternoon';
+      } else {
+        return 'Good Evening';
+      }
+    }, [isClient]);
+
     const summaryData = useMemo(() => {
         const revenue = financialData.filter(r => r.type === 'revenue').reduce((acc, r) => acc + r.amount, 0);
         const expenses = financialData.filter(r => r.type === 'expense').reduce((acc, r) => acc + r.amount, 0);
@@ -99,7 +111,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold">Good Morning, {name}</h1>
+        <h1 className="text-3xl font-bold">{greeting}, {name}</h1>
         <p className="text-muted-foreground">Here is your business overview for today.</p>
       </div>
 
