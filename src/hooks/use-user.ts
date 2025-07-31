@@ -73,15 +73,20 @@ export function useUser(): UserHook {
   useEffect(() => {
     checkUser();
     
-    // Check user on subsequent navigations or focus changes
-    window.addEventListener('focus', checkUser);
-    window.addEventListener('storage', checkUser); // When another tab logs in/out
+    const handleStorageChange = (event: StorageEvent) => {
+        if (event.key === 'auth_token' || event.key === 'user_role') {
+            checkUser();
+        }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', checkUser); 
 
     return () => {
-      window.removeEventListener('focus', checkUser);
-      window.removeEventListener('storage', checkUser);
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('focus', checkUser);
     };
-  }, [checkUser]);
+  }, [checkUser, isClient]);
 
 
   return { ...user, logout };

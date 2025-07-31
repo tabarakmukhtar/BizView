@@ -50,7 +50,7 @@ const allMenuItems = [
     href: '/dashboard/clients',
     label: 'Clients',
     icon: Users,
-    roles: ['Admin', 'Manager'],
+    roles: ['Admin', 'Manager', 'Accountant'],
   },
    {
     href: '/dashboard/search',
