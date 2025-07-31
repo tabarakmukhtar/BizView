@@ -21,4 +21,13 @@ export type Appointment = {
   time: string;
   title: string;
   description: string;
+  clientId?: string; // Optional: Link appointment to a client
+  clientName?: string; // Optional: For easy display
 };
+
+export type Notification = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: Date;
+}

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { Search, Bell, LifeBuoy, LogOut, User, Settings } from 'lucide-react';
+import { Search, Bell, LifeBuoy, LogOut, User, Settings, BellRing } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent, useCallback } from 'react';
@@ -21,26 +21,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useUser } from '@/hooks/use-user';
 import { useIsClient } from '@/hooks/use-is-client';
-
-const notifications = [
-  {
-    title: 'New client signed!',
-    description: 'Acme Inc. has joined your portfolio.',
-  },
-  {
-    title: 'Invoice Paid',
-    description: 'Your invoice #INV-1234 has been paid.',
-  },
-  {
-    title: 'Project Update',
-    description: 'A new comment was added to the website redesign project.',
-  },
-];
-
+import { useData } from '@/hooks/use-data';
+import { formatDistanceToNow } from 'date-fns';
 
 export function Header() {
   const router = useRouter();
   const { name, role, logout } = useUser();
+  const { notifications } = useData();
   const [avatarUrl, setAvatarUrl] = useState('https://placehold.co/40x40');
   const [searchQuery, setSearchQuery] = useState('');
   const isClient = useIsClient();
@@ -107,31 +94,42 @@ export function Header() {
       <div className="flex items-center gap-4">
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full relative">
                     <Bell className="h-5 w-5" />
+                    {notifications.length > 0 && <span className="absolute top-0 right-0 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span></span>}
                     <span className="sr-only">Toggle notifications</span>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-80">
+            <PopoverContent align="end" className="w-80 p-0">
                 <Card className='border-0 shadow-none'>
-                    <CardHeader className='p-2'>
+                    <CardHeader className='p-4 border-b'>
                         <CardTitle className='text-base'>Notifications</CardTitle>
                     </CardHeader>
-                    <CardContent className='p-2'>
+                    <CardContent className='p-4 max-h-80 overflow-y-auto'>
                         <div className="flex flex-col gap-4">
-                            {notifications.map((notification, index) => (
-                                <div key={index} className="flex items-start gap-3">
-                                    <div className="mt-1 flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-medium leading-none">
-                                            {notification.title}
-                                        </p>
+                            {notifications.length > 0 ? notifications.map((notification) => (
+                                <div key={notification.id} className="flex items-start gap-3">
+                                    <div className="mt-1 flex h-2 w-2 translate-y-1 rounded-full bg-primary" />
+                                    <div className="space-y-1 flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <p className="text-sm font-medium leading-none">
+                                                {notification.title}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
+                                            </p>
+                                        </div>
                                         <p className="text-sm text-muted-foreground">
                                             {notification.description}
                                         </p>
                                     </div>
                                 </div>
-                            ))}
+                            )) : (
+                                <div className="text-center text-sm text-muted-foreground py-8">
+                                    <BellRing className="mx-auto h-8 w-8 mb-2" />
+                                    You're all caught up!
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>

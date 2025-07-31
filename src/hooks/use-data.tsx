@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { Client, FinancialRecord, Appointment } from "@/lib/definitions";
+import type { Client, FinancialRecord, Appointment, Notification } from "@/lib/definitions";
 import { createContext, useContext, useState, useEffect, type ReactNode, useMemo } from 'react';
 import { useIsClient } from './use-is-client';
 
@@ -30,10 +30,14 @@ const initialFinancialData: FinancialRecord[] = [
 ];
 
 const initialAppointments: Appointment[] = [
-  { id: '1', time: '10:00 AM', title: 'Project Kickoff with Acme Inc.', description: 'Discussing the new marketing campaign strategy.' },
-  { id: '2', time: '01:00 PM', title: 'Team Sync-up', description: 'Weekly check-in on project progress and blockers.' },
-  { id: '3', time: '03:30 PM', title: 'Interview with Candidate', description: 'Senior Frontend Developer position.' },
+  { id: '1', time: '10:00', title: 'Project Kickoff with Acme Inc.', description: 'Discussing the new marketing campaign strategy.', clientId: '2', clientName: 'Bob Smith' },
+  { id: '2', time: '13:00', title: 'Team Sync-up', description: 'Weekly check-in on project progress and blockers.' },
+  { id: '3', time: '15:30', title: 'Interview with Candidate', description: 'Senior Frontend Developer position.' },
 ];
+
+const initialNotifications: Notification[] = [
+    {id: '1', title: 'Welcome to BizView!', description: 'Explore the dashboard to manage your business.', createdAt: new Date()},
+]
 
 type Currency = 'USD' | 'EUR' | 'INR';
 
@@ -57,6 +61,8 @@ interface DataContextType {
   setFinancialData: (data: FinancialRecord[]) => void;
   appointments: Appointment[];
   setAppointments: (appointments: Appointment[]) => void;
+  notifications: Notification[];
+  addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => void;
   currency: Currency;
   setCurrency: (currency: Currency) => void;
   loading: boolean;
@@ -70,6 +76,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [clients, setClientsState] = useState<Client[]>([]);
   const [financialData, setFinancialDataState] = useState<FinancialRecord[]>([]);
   const [appointments, setAppointmentsState] = useState<Appointment[]>([]);
+  const [notifications, setNotificationsState] = useState<Notification[]>([]);
   const [currency, setCurrencyState] = useState<Currency>('USD');
   const [loading, setLoading] = useState(true);
   const isClient = useIsClient();
@@ -85,6 +92,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         const storedAppointments = localStorage.getItem('bizview-appointments');
         setAppointmentsState(storedAppointments ? JSON.parse(storedAppointments) : initialAppointments);
+
+        const storedNotifications = localStorage.getItem('bizview-notifications');
+        const parsedNotifications = storedNotifications ? JSON.parse(storedNotifications, (key, value) => {
+            if (key === 'createdAt') return new Date(value);
+            return value;
+        }) : initialNotifications;
+        setNotificationsState(parsedNotifications);
         
         const storedCurrency = localStorage.getItem('bizview-currency');
         setCurrencyState((storedCurrency as Currency) || 'USD');
@@ -94,6 +108,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setClientsState(initialClients);
         setFinancialDataState(initialFinancialData);
         setAppointmentsState(initialAppointments);
+        setNotificationsState(initialNotifications);
         setCurrencyState('USD');
       } finally {
         setLoading(false);
@@ -103,22 +118,37 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const setClients = (newClients: Client[]) => {
     setClientsState(newClients);
-    localStorage.setItem('bizview-clients', JSON.stringify(newClients));
+    if(isClient) localStorage.setItem('bizview-clients', JSON.stringify(newClients));
   };
 
   const setFinancialData = (newFinancialData: FinancialRecord[]) => {
     setFinancialDataState(newFinancialData);
-    localStorage.setItem('bizview-financials', JSON.stringify(newFinancialData));
+    if(isClient) localStorage.setItem('bizview-financials', JSON.stringify(newFinancialData));
   };
 
   const setAppointments = (newAppointments: Appointment[]) => {
     setAppointmentsState(newAppointments);
-    localStorage.setItem('bizview-appointments', JSON.stringify(newAppointments));
+    if(isClient) localStorage.setItem('bizview-appointments', JSON.stringify(newAppointments));
   };
+
+  const setNotifications = (newNotifications: Notification[]) => {
+      setNotificationsState(newNotifications);
+      if(isClient) localStorage.setItem('bizview-notifications', JSON.stringify(newNotifications));
+  }
+
+  const addNotification = (notification: Omit<Notification, 'id' | 'createdAt'>) => {
+      const newNotification: Notification = {
+          ...notification,
+          id: `notif-${Date.now()}`,
+          createdAt: new Date(),
+      };
+      const updatedNotifications = [newNotification, ...notifications].slice(0, 10); // Keep last 10
+      setNotifications(updatedNotifications);
+  }
   
   const setCurrency = (newCurrency: Currency) => {
     setCurrencyState(newCurrency);
-    localStorage.setItem('bizview-currency', newCurrency);
+    if(isClient) localStorage.setItem('bizview-currency', newCurrency);
   }
 
   const convertedFinancialData = useMemo(() => {
@@ -171,6 +201,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setFinancialData,
         appointments,
         setAppointments,
+        notifications,
+        addNotification,
         currency,
         setCurrency,
         loading,

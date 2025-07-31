@@ -38,7 +38,7 @@ import { useIsClient } from "@/hooks/use-is-client";
 
 
 export default function ClientsPage() {
-  const { clients, setClients, loading } = useData();
+  const { clients, setClients, loading, addNotification } = useData();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -80,6 +80,10 @@ export default function ClientsPage() {
     };
 
     setClients([newClient, ...clients]);
+    addNotification({
+        title: "New Client Added",
+        description: `${newName} from ${newCompany} is now a client.`
+    });
 
     setNewName('');
     setNewEmail('');

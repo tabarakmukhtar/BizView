@@ -5,7 +5,7 @@ import type { Appointment } from "@/lib/definitions";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MoreHorizontal, PlusCircle, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Trash2, Edit, User } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -18,9 +18,11 @@ import { useUser } from "@/hooks/use-user";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useData } from "@/hooks/use-data";
 import { useIsClient } from "@/hooks/use-is-client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function CalendarPage() {
-  const { appointments, setAppointments, loading } = useData();
+  const { appointments, setAppointments, loading, clients, addNotification } = useData();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -29,7 +31,6 @@ export default function CalendarPage() {
   const isClient = useIsClient();
 
   useEffect(() => {
-    // To prevent hydration errors, we set the initial date on the client.
     if(isClient) {
       setSelectedDate(new Date());
     }
@@ -39,11 +40,13 @@ export default function CalendarPage() {
   const [newTitle, setNewTitle] = useState('');
   const [newTime, setNewTime] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [newClientId, setNewClientId] = useState('');
 
   // State for editing an appointment
   const [editTitle, setEditTitle] = useState('');
   const [editTime, setEditTime] = useState('');
   const [editDescription, setEditDescription] = useState('');
+  const [editClientId, setEditClientId] = useState<string | undefined>('');
   
   const canEdit = role === 'Admin' || role === 'Manager';
 
@@ -56,20 +59,29 @@ export default function CalendarPage() {
       });
       return;
     }
+    
+    const selectedClient = clients.find(c => c.id === newClientId);
 
     const newAppointment: Appointment = {
       id: `apt${Date.now()}`,
       title: newTitle,
       time: newTime,
       description: newDescription,
+      clientId: newClientId || undefined,
+      clientName: selectedClient?.name,
     };
 
-    setAppointments([newAppointment, ...appointments].sort((a,b) => a.time.localeCompare(b.time)));
+    const updatedAppointments = [newAppointment, ...appointments].sort((a,b) => a.time.localeCompare(b.time));
+    setAppointments(updatedAppointments);
+    addNotification({
+        title: 'New Appointment Created',
+        description: `Scheduled "${newTitle}" at ${newTime}.`
+    });
     
-    // Reset form and close dialog
     setNewTitle('');
     setNewTime('');
     setNewDescription('');
+    setNewClientId('');
     setIsAddDialogOpen(false);
     toast({
       title: "Appointment Saved",
@@ -82,15 +94,18 @@ export default function CalendarPage() {
     setEditTitle(apt.title);
     setEditTime(apt.time);
     setEditDescription(apt.description);
+    setEditClientId(apt.clientId);
     setIsEditDialogOpen(true);
   };
 
   const handleUpdateAppointment = () => {
     if (!selectedAppointment) return;
 
+    const selectedClient = clients.find(c => c.id === editClientId);
+    
     setAppointments(appointments.map(apt => 
       apt.id === selectedAppointment.id 
-      ? { ...apt, title: editTitle, time: editTime, description: editDescription } 
+      ? { ...apt, title: editTitle, time: editTime, description: editDescription, clientId: editClientId, clientName: selectedClient?.name } 
       : apt
     ).sort((a,b) => a.time.localeCompare(b.time)));
 
@@ -176,6 +191,21 @@ export default function CalendarPage() {
                 </Label>
                 <Input id="time" type="time" className="col-span-3" value={newTime} onChange={(e) => setNewTime(e.target.value)} />
               </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="client" className="text-right">
+                  Client
+                </Label>
+                 <Select onValueChange={setNewClientId} value={newClientId}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Assign a client (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                     {clients.map(client => (
+                      <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="description" className="text-right">
                   Description
@@ -216,7 +246,16 @@ export default function CalendarPage() {
                       <div className="font-semibold text-primary">{apt.time}</div>
                       <div className="flex-1">
                         <p className="font-semibold">{apt.title}</p>
-                        <p className="text-sm text-muted-foreground">{apt.description}</p>
+                         {apt.clientName && (
+                            <div className="flex items-center gap-2 mt-1">
+                                <Avatar className="h-5 w-5">
+                                  <AvatarImage src={`https://placehold.co/40x40.png?text=${apt.clientName.charAt(0)}`} alt={apt.clientName} data-ai-hint="person"/>
+                                  <AvatarFallback>{apt.clientName.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <p className="text-xs text-muted-foreground">{apt.clientName}</p>
+                            </div>
+                        )}
+                        <p className="text-sm text-muted-foreground mt-1">{apt.description}</p>
                       </div>
                       <TooltipProvider>
                         <Tooltip>
@@ -280,6 +319,21 @@ export default function CalendarPage() {
                 Time
               </Label>
               <Input id="edit-time" type="time" className="col-span-3" value={editTime} onChange={(e) => setEditTime(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-client" className="text-right">
+                  Client
+                </Label>
+                 <Select onValueChange={(val) => setEditClientId(val)} value={editClientId}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Assign a client (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                     {clients.map(client => (
+                      <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="edit-description" className="text-right">
