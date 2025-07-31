@@ -2,13 +2,17 @@
 
 BizView is a modern, AI-powered business management dashboard built with Next.js, ShadCN, Tailwind CSS, and Genkit. It provides a comprehensive suite of tools for managing clients, financials, and appointments, with role-based access control to ensure data security.
 
+[**Live Demo**](https://bizview.netlify.app/login)
+
 ## Screenshots
 
 | Dashboard | Client Management |
 | :---: | :---: |
 | <img src="./screenshots/dashboard.png" alt="BizView Dashboard Screenshot" width="100%"> | <img src="./screenshots/client-management.png" alt="BizView Client Management Screenshot" width="100%"> |
-| **Financials Page** | **Appointment Calendar** | **Forecastings Page** |
-| <img src="./screenshots/financials.png" alt="BizView Financials Screenshot" width="100%"> | <img src="./screenshots/calender.png" alt="BizView Calendar Screenshot" width="100%"> | <img src="./screenshots/forecastings.png" alt="BizView Forecastings Screenshot" width="100%"> |
+| **Financials Page** | **Appointment Calendar** |
+| <img src="./screenshots/financials.png" alt="BizView Financials Screenshot" width="100%"> | <img src="./screenshots/calendar.png" alt="BizView Calendar Screenshot" width="100%"> |
+| **AI Forecasting** | |
+| <img src="./screenshots/forecasting.png" alt="BizView AI Forecasting Screenshot" width="100%"> | |
 
 ## Core Features
 
