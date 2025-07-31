@@ -16,7 +16,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Search, Bell, LifeBuoy, LogOut, User, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent, useCallback } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useUser } from '@/hooks/use-user';
@@ -43,34 +43,30 @@ export function Header() {
   const [avatarUrl, setAvatarUrl] = useState('https://placehold.co/40x40');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const updateAvatar = useCallback(() => {
+    if (role && role !== 'Guest') {
+      const savedAvatar = localStorage.getItem(`user-avatar-${role}`);
+      setAvatarUrl(savedAvatar || 'https://placehold.co/40x40');
+    } else {
+      setAvatarUrl('https://placehold.co/40x40');
+    }
+  }, [role]);
+
   useEffect(() => {
-    const updateAvatar = (event?: StorageEvent | CustomEvent) => {
-      if (role && role !== 'Guest') {
-        const key = `user-avatar-${role}`;
-         // Check if the event is for the correct key or if there's no event (initial load)
-        if (!event || (event instanceof CustomEvent && event.detail.key === key) || (event instanceof StorageEvent && event.key === key)) {
-          const savedAvatar = localStorage.getItem(key);
-          setAvatarUrl(savedAvatar || 'https://placehold.co/40x40');
-        }
-      } else {
-        setAvatarUrl('https://placehold.co/40x40');
+    updateAvatar();
+  
+    const handleStorageChange = (event: StorageEvent) => {
+      if (role && (event.key === `user-avatar-${role}` || event.key === `user-name-${role}`)) {
+        updateAvatar();
       }
     };
-
-    updateAvatar();
-
-    window.addEventListener('storage', updateAvatar);
-    
-    // Listen for custom event from profile page
-    const customUpdateListener = (event: Event) => updateAvatar(event as CustomEvent);
-    window.addEventListener('storage', customUpdateListener);
-
-
+  
+    window.addEventListener('storage', handleStorageChange);
+  
     return () => {
-      window.removeEventListener('storage', updateAvatar);
-      window.removeEventListener('storage', customUpdateListener);
+      window.removeEventListener('storage', handleStorageChange);
     };
-  }, [role]);
+  }, [role, updateAvatar]);
 
   const handleLogout = () => {
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';

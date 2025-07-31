@@ -43,7 +43,7 @@ export default function ProfilePage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [title, setTitle] = useState('');
-  const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/100x100');
+  const [avatarPreview, setAvatarPreview] = useState('');
   const isClient = useIsClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -70,6 +70,8 @@ export default function ProfilePage() {
       setName(savedName || defaultName);
       setEmail(savedEmail || profileDetails[selectedRole]?.email || '');
       setTitle(savedTitle || profileDetails[selectedRole]?.title || '');
+    } else {
+      setAvatarPreview('https://placehold.co/100x100');
     }
   }, [selectedRole, isClient]);
 
@@ -81,11 +83,9 @@ export default function ProfilePage() {
       localStorage.setItem(`user-email-${selectedRole}`, email);
       localStorage.setItem(`user-title-${selectedRole}`, title);
       
-      // If the admin edits their own profile, trigger a real-time update in the header
-      if (selectedRole === currentUserRole) {
-        window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-avatar-${currentUserRole}` }}));
-        window.dispatchEvent(new CustomEvent('storage', { detail: { key: `user-name-${currentUserRole}` }}));
-      }
+      // Trigger a storage event to update other components like the header
+      window.dispatchEvent(new StorageEvent('storage', { key: `user-avatar-${selectedRole}` }));
+      window.dispatchEvent(new StorageEvent('storage', { key: `user-name-${selectedRole}` }));
 
       toast({
         title: 'Profile Updated',
