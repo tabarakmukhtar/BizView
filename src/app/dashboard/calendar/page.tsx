@@ -131,7 +131,7 @@ export default function CalendarPage() {
   
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Appointment Calendar</h1>
           <p className="text-muted-foreground">
@@ -190,8 +190,8 @@ export default function CalendarPage() {
         </Dialog>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-1">
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-1">
           <Card>
             <CardContent className="p-0">
               <Calendar
@@ -203,7 +203,7 @@ export default function CalendarPage() {
             </CardContent>
           </Card>
         </div>
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2">
           <Card className="h-full">
             <CardHeader>
               <CardTitle>Appointments for {selectedDate ? selectedDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'the selected date'}</CardTitle>

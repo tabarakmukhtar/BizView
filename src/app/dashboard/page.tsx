@@ -65,7 +65,7 @@ export default function DashboardPage() {
                   </Card>
                ))}
             </div>
-             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+             <div className="grid gap-4 lg:grid-cols-7">
                 <Card className="lg:col-span-4">
                   <CardHeader>
                     <Skeleton className="h-7 w-1/3" />
@@ -103,7 +103,7 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Here is your business overview for today.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
         </Card>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 lg:grid-cols-7">
         <FinancialChart />
         <Card className="lg:col-span-3">
           <CardHeader>

@@ -65,8 +65,8 @@ export default function SupportPage() {
         <p className="text-muted-foreground">Find answers to common questions and get in touch with our team.</p>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-2">
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <Card>
             <CardHeader>
               <CardTitle>Frequently Asked Questions</CardTitle>
@@ -86,9 +86,9 @@ export default function SupportPage() {
             </CardContent>
           </Card>
         </div>
-        <div className="md:col-span-1">
+        <div className="lg:col-span-1">
           <Card>
-            <CardHeader className='flex-row items-center justify-between'>
+            <CardHeader className='flex-row items-start justify-between'>
               <div>
                 <CardTitle>Contact Us</CardTitle>
                 <CardDescription>

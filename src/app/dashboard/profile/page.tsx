@@ -86,6 +86,8 @@ export default function ProfilePage() {
       // Trigger a storage event to update other components like the header
       window.dispatchEvent(new StorageEvent('storage', { key: `user-avatar-${selectedRole}` }));
       window.dispatchEvent(new StorageEvent('storage', { key: `user-name-${selectedRole}` }));
+      window.dispatchEvent(new CustomEvent('storage-updated', { detail: { key: `user-avatar-${selectedRole}` } }));
+      window.dispatchEvent(new CustomEvent('storage-updated', { detail: { key: `user-name-${selectedRole}` } }));
 
       toast({
         title: 'Profile Updated',
@@ -159,8 +161,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-3">
-      <div className="md:col-span-1">
+    <div className="grid gap-8 lg:grid-cols-3">
+      <div className="lg:col-span-1">
         <Card>
           <CardHeader className="items-center text-center">
             <Avatar className="h-24 w-24 mb-4">
@@ -175,7 +177,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </div>
-      <div className="md:col-span-2">
+      <div className="lg:col-span-2">
         <Card>
           <CardHeader>
             <CardTitle>Edit Profile</CardTitle>

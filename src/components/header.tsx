@@ -20,6 +20,7 @@ import { useEffect, useState, type FormEvent, useCallback } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { useUser } from '@/hooks/use-user';
+import { useIsClient } from '@/hooks/use-is-client';
 
 const notifications = [
   {
@@ -42,6 +43,7 @@ export function Header() {
   const { name, role } = useUser();
   const [avatarUrl, setAvatarUrl] = useState('https://placehold.co/40x40');
   const [searchQuery, setSearchQuery] = useState('');
+  const isClient = useIsClient();
 
   const updateAvatar = useCallback(() => {
     if (role && role !== 'Guest') {
@@ -53,20 +55,25 @@ export function Header() {
   }, [role]);
 
   useEffect(() => {
+    if (!isClient) return;
+    
     updateAvatar();
   
-    const handleStorageChange = (event: StorageEvent) => {
-      if (role && (event.key === `user-avatar-${role}` || event.key === `user-name-${role}`)) {
-        updateAvatar();
-      }
+    const handleStorageChange = (event: StorageEvent | CustomEvent) => {
+        const key = event instanceof CustomEvent ? event.detail.key : event.key;
+        if (role && (key === `user-avatar-${role}` || key === `user-name-${role}`)) {
+            updateAvatar();
+        }
     };
   
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage-updated', handleStorageChange);
   
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('storage-updated', handleStorageChange);
     };
-  }, [role, updateAvatar]);
+  }, [role, updateAvatar, isClient]);
 
   const handleLogout = () => {
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -83,9 +90,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-4 md:px-6">
-      <div className="md:hidden">
-        <SidebarTrigger />
-      </div>
+      <SidebarTrigger className="md:hidden" />
       <div className="flex-1">
         <form onSubmit={handleSearchSubmit}>
           <div className="relative">
