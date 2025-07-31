@@ -40,7 +40,7 @@ const notifications = [
 
 export function Header() {
   const router = useRouter();
-  const { name, role } = useUser();
+  const { name, role, logout } = useUser();
   const [avatarUrl, setAvatarUrl] = useState('https://placehold.co/40x40');
   const [searchQuery, setSearchQuery] = useState('');
   const isClient = useIsClient();
@@ -76,8 +76,7 @@ export function Header() {
   }, [role, updateAvatar, isClient]);
 
   const handleLogout = () => {
-    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    document.cookie = 'user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    logout();
     router.replace('/login');
   };
 

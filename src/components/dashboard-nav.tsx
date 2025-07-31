@@ -84,7 +84,10 @@ export function DashboardNav() {
   const filteredSecondaryMenuItems = secondaryMenuItems.filter(item => item.roles.includes(role));
   
   const handleLinkClick = () => {
-    setOpenMobile(false);
+    //
+    if (window.innerWidth < 768) {
+      setOpenMobile(false);
+    }
   };
 
   return (
