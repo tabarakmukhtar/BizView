@@ -7,6 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -77,16 +78,21 @@ const secondaryMenuItems = [
 export function DashboardNav() {
   const pathname = usePathname();
   const { role } = useUser();
+  const { setOpenMobile } = useSidebar();
 
   const menuItems = allMenuItems.filter(item => item.roles.includes(role));
   const filteredSecondaryMenuItems = secondaryMenuItems.filter(item => item.roles.includes(role));
+  
+  const handleLinkClick = () => {
+    setOpenMobile(false);
+  };
 
   return (
     <nav className="flex flex-col h-full">
       <div className="flex-1">
         <SidebarMenu>
           {menuItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
+            <SidebarMenuItem key={item.href} onClick={handleLinkClick}>
               <Link href={item.href}>
                 <SidebarMenuButton
                   isActive={pathname === item.href || (item.href === '/dashboard/search' && pathname.startsWith('/dashboard/search'))}
@@ -103,7 +109,7 @@ export function DashboardNav() {
       <div className="mt-auto">
         <SidebarMenu>
           {filteredSecondaryMenuItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
+              <SidebarMenuItem key={item.href} onClick={handleLinkClick}>
                 <Link href={item.href}>
                   <SidebarMenuButton
                     isActive={pathname === item.href}
