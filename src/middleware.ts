@@ -11,6 +11,14 @@ export function middleware(request: NextRequest) {
   const isAuthPage = pathname.startsWith('/login');
   const isDashboardPage = pathname.startsWith('/dashboard');
 
+  const response = NextResponse.next();
+
+  // Prevent caching of pages
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
+
+
   // If on login page
   if (isAuthPage) {
     // If authenticated, redirect to dashboard
@@ -18,7 +26,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     // Otherwise, allow access to login page
-    return NextResponse.next();
+    return response;
   }
   
   // If trying to access a dashboard page
@@ -48,7 +56,7 @@ export function middleware(request: NextRequest) {
     // Admin has access to everything, so no specific redirect needed
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
